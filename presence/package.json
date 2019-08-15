@@ -1,0 +1,36 @@
+{
+  "name": "cloudstate-js-chat-presence",
+  "version": "1.0.0",
+  "description": "CloudState js-chat sample application presence stateful function",
+  "keywords": [
+    "serverless",
+    "cloudstate",
+    "crdt"
+  ],
+  "homepage": "https://github.com/cloudstateio/samples-js-chat",
+  "bugs": {
+    "url": "https://github.com/cloudstateio/samples-js-chat/issues"
+  },
+  "license": "Apache-2.0",
+  "author": {
+    "name": "James Roper",
+    "email": "jroper2@gmail.com",
+    "url": "https://jazzy.id.au"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cloudstateio/samples-js-chat",
+    "directory": "presence"
+  },
+  "dependencies": {
+    "cloudstate": "0.0.1"
+  },
+  "scripts": {
+    "prestart": "compile-descriptor presence.proto",
+    "start": "node index.js",
+    "start-no-prestart": "node index.js",
+    "dockerbuild": "docker build -t cloudstateio/samples-js-chat-presence:latest .",
+    "dockerpush": "docker push cloudstateio/samples-js-chat-presence:latest",
+    "dockerbuildpush": "npm run dockerbuild && npm run dockerpush"
+  }
+}
