@@ -41,9 +41,6 @@ entity.commandHandlers = {
  * removing our vote if this is the last connection to this CRDT.
  */
 function connect(user, ctx) {
-  if (ctx.state === null) {
-    ctx.state = new crdt.Vote();
-  }
   if (ctx.streamed) {
     ctx.onStreamCancel = state => {
       state.disconnect();
@@ -56,12 +53,10 @@ function connect(user, ctx) {
  * User presence monitoring call.
  *
  * This is a streamed call. We add a onStateChange callback, so that whenever the CRDT
- * changes, if the online status has changed, we return it.
+ * changes, if the online status has changed since the last message we pushed, we push
+ * it.
  */
 function monitor(user, ctx) {
-  if (ctx.state === null) {
-    ctx.state = new crdt.Vote();
-  }
   let online = ctx.state.atLeastOne;
   if (ctx.streamed) {
     ctx.onStateChange = state => {
@@ -75,29 +70,35 @@ function monitor(user, ctx) {
 }
 
 /**
- * This is invoked whenever a new state is created, either by setting
- * ctx.state = myCrdt, or when the server pushes a new state. This is provided to allow
+ * This avoids having to do a null check on the state in each of the commands,
+ * instead when there is no state, this will be invoked instead.
+ */
+entity.defaultValue = () => new crdt.Vote();
+
+/**
+ * This is invoked whenever a new state is created, either by the default value
+ * handler above, or when the server pushes a new state. This is provided to allow
  * us to configure the CRDT, or enrich it with additional non replicated state, in this
  * case, for the vote CRDT, we add the number of users connected to this node to it,
- * so that only remove our vote when that number goes down to zero.
+ * so that only remove our vote when that number goes down to zero, along with
+ * connect/disconnect functions for managing the users and updating the vote
+ * accordingly.
  */
 entity.onStateSet = state => {
-  if (state instanceof crdt.Vote) {
-    state.users = 0;
-    // Enrich the state with callbacks for users connected
-    state.connect = () => {
-      state.users += 1;
-      if (state.users === 1) {
-        state.vote = true;
-      }
-    };
-    state.disconnect = () => {
-      state.users -= 1;
-      if (state.users === 0) {
-        state.vote = false;
-      }
-    };
-  }
+  state.users = 0;
+  // Enrich the state with callbacks for users connected
+  state.connect = () => {
+    state.users += 1;
+    if (state.users === 1) {
+      state.vote = true;
+    }
+  };
+  state.disconnect = () => {
+    state.users -= 1;
+    if (state.users === 0) {
+      state.vote = false;
+    }
+  };
 };
 
 // Export the entity
