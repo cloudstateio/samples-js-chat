@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dockerbuild": "docker build -f Dockerfile -t cloudstateio/samples-js-chat-gateway:latest .."
+    "dockerbuild": "docker build -f Dockerfile -t cloudstateio/samples-js-chat-gateway:latest ..",
+    "dockerpush": "docker push cloudstateio/samples-js-chat-gateway:latest",
+    "dockerbuildpush": "npm run dockerbuild && npm run dockerpush"
   },
   "keywords": [
     "cloudstate"
