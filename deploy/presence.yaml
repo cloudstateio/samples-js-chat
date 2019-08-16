@@ -1,0 +1,8 @@
+# Stateful service descriptor for the presence app
+apiVersion: cloudstate.io/v1alpha1
+kind: StatefulService
+metadata:
+  name: presence
+spec:
+  containers:
+  - image: cloudstateio/samples-js-chat-presence:latest

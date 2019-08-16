@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      containers:
+      - name: gateway
+        image: cloudstateio/samples-js-chat-gateway:latest
+        args: ["presence:80"]
+        ports:
+        - containerPort: 3000
+        env:
+        - name: DEBUG
+          value: cloudstate*

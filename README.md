@@ -41,6 +41,24 @@ To run in Kubernetes you'll first need to install the CloudState operator. It's 
 
 Istio can be installed by following the [Istio documentation](https://istio.io/docs/setup/kubernetes/). Ensure that you enable Istio injection on whichever namespaces you're using.
 
-CloudState can be installed according to the instructions [here](https://github.com/cloudstateio/cloudstate).
+To install CloudState, run the following:
 
-tba
+```
+kubectl create namespace cloudstate
+kubectl apply -n cloudstate -f https://github.com/cloudstateio/cloudstate/releases/download/v0.4/cloudstate-0.4.yaml
+```
+
+Now, you can install the gateway and the presence service by running the following:
+
+```
+kubectl apply -f https://raw.githubusercontent.com/cloudstateio/samples-js-chat/master/deploy/presence.yaml
+kubectl apply -f https://raw.githubusercontent.com/cloudstateio/samples-js-chat/master/deploy/gateway.yaml
+```
+
+You may wish to scale the presence service up, to see that it works on multiple nodes:
+
+```
+kubectl scale deploy/presence-deployment --replicas 3
+```
+
+The only thing left to do now is set up ingress for the gateway. If using Istio, [this descriptor](https://raw.githubusercontent.com/cloudstateio/samples-js-chat/master/deploy/gateway-istio.yaml) provides a configuration, however it routes all requests from the default Istio ingress gateway to the js-chat gateway, and so is only suitable for demonstration purposes when js-chat is the only thing running in the Kubernetes cluster.

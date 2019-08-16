@@ -1,26 +1,3 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: gateway
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: gateway
-  template:
-    metadata:
-      labels:
-        app: gateway
-    spec:
-      containers:
-      - name: gateway
-        image: gcr.io/stateserv/cloudstate-sample-gateway:latest
-        ports:
-        - containerPort: 3000
-        env:
-        - name: DEBUG
-          value: cloudstate*
----
 apiVersion: v1
 kind: Service
 metadata:
@@ -37,7 +14,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
-  name: gateway-gateway
+  name: js-chat-gateway
 spec:
   selector:
     istio: ingressgateway
@@ -52,12 +29,12 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: gateway-virtual-service
+  name: js-chat
 spec:
   hosts:
   - "*"
   gateways:
-  - gateway-gateway
+  - js-chat-gateway
   http:
   - match:
     - uri:
