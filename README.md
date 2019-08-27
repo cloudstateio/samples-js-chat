@@ -45,7 +45,7 @@ To install CloudState, run the following:
 
 ```
 kubectl create namespace cloudstate
-kubectl apply -n cloudstate -f https://github.com/cloudstateio/cloudstate/releases/download/v0.4/cloudstate-0.4.yaml
+kubectl apply -n cloudstate -f https://github.com/cloudstateio/cloudstate/releases/download/v0.4.3/cloudstate-0.4.3.yaml
 ```
 
 Now, you can install the gateway and the presence service by running the following:
