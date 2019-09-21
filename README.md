@@ -6,7 +6,7 @@ Currently, there's only one feature, user presence, but in future we will add ch
 
 The application has two components, a presence stateful function, which uses a vote CRDT to store whether a user is currently online or not, and a gateway, which is an express/ws application, that serves a UI.
 
-The UI is designed to allow connecting as multiple users in one browser window, this is for demonstration purposes, to make it straight forward to see real time interactions, serverside pushes etc, without needing to open many browser tabs.
+The UI is designed to allow connecting as multiple users in one browser window, this is for demonstration purposes, to make it straight forward to see real time interactions, server-side pushes etc, without needing to open many browser tabs.
 
 ## Running in Docker
 
@@ -21,9 +21,9 @@ docker run --rm -d --network container:gateway \
   --name proxy cloudstateio/cloudstate-proxy-dev-mode:latest
 ```
 
-Now you can visit the app by going to http://localhost:3000 in your browser. You can view the logs of the precense stateful fuction by running `docker logs presence -f`.
+Now you can visit the app by going to http://localhost:3000 in your browser. You can view the logs of the presence stateful function by running `docker logs presence -f`.
 
-The above commands do the folowing:
+The above commands do the following:
 
 1. First the gateway is started, with port 3000 exposed on your host. The gateway is started first because it is what is exposing the port that it connects.
 2. Then the presence stateful function is started. It is configured to use the gateways network namespace.
