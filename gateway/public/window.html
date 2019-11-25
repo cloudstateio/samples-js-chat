@@ -140,17 +140,23 @@
         var monitorUsername = monitorInput.value;
         if (isValidUsername(monitorUsername)) {
           if (!getMonitorElement(monitorUsername)) {
-            var ul = document.createElement("li");
-            ul.dataset.monitor = monitorUsername;
-            ul.className = "unknown";
-            ul.innerText = monitorUsername;
-            monitor.appendChild(ul);
+            addUserToMonitorList(monitorUsername);
             send("monitor", monitorUsername);
           }
           monitorInput.value = "";
         }
         return false;
       };
+
+      function addUserToMonitorList(monitorUsername) {
+        if (!getMonitorElement(monitorUsername)) {
+          var ul = document.createElement("li");
+          ul.dataset.monitor = monitorUsername;
+          ul.className = "unknown";
+          ul.innerText = monitorUsername;
+          monitor.appendChild(ul);
+        }
+      }
 
       socket.onmessage = function(msg) {
         const message = JSON.parse(msg.data);
@@ -166,6 +172,8 @@
           onOffline(msg.data);
         } else if (msg.event === "online") {
           onOnline(msg.data);
+        } else if (msg.event === "friend") {
+          onFriend(msg.data);
         } else {
           console.log("Unknown presence event type: " + msg);
         }
@@ -187,6 +195,10 @@
         } else {
           console.log("Unknown monitor username came online [" + username + "]")
         }
+      }
+
+      function onFriend(friend) {
+        addUserToMonitorList(friend);
       }
 
       connectedUsername.innerText = username;

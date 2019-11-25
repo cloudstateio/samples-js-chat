@@ -1,0 +1,36 @@
+{
+  "name": "cloudstate-js-chat-friends",
+  "version": "1.0.0",
+  "description": "CloudState js-chat sample application friends stateful function",
+  "keywords": [
+    "serverless",
+    "cloudstate",
+    "crdt"
+  ],
+  "homepage": "https://github.com/cloudstateio/samples-js-chat",
+  "bugs": {
+    "url": "https://github.com/cloudstateio/samples-js-chat/issues"
+  },
+  "license": "Apache-2.0",
+  "author": {
+    "name": "James Roper",
+    "email": "jroper2@gmail.com",
+    "url": "https://jazzy.id.au"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cloudstateio/samples-js-chat",
+    "directory": "friends"
+  },
+  "dependencies": {
+    "cloudstate": "0.0.1"
+  },
+  "scripts": {
+    "prestart": "compile-descriptor friends.proto",
+    "start": "node index.js",
+    "start-no-prestart": "node index.js",
+    "dockerbuild": "docker build -t ${DOCKER_PUBLISH_TO:-cloudstateio}/samples-js-chat-friends:latest .",
+    "dockerpush": "docker push ${DOCKER_PUBLISH_TO:-cloudstateio}/samples-js-chat-friends:latest",
+    "dockerbuildpush": "npm run dockerbuild && npm run dockerpush"
+  }
+}

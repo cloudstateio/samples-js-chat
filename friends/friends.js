@@ -14,10 +14,36 @@
  * limitations under the License.
  */
 
-const opts = {};
 
-if (process.env.PORT) {
-    opts.bindPort = process.env.PORT;
+const crdt = require("cloudstate").crdt;
+
+const entity = new crdt.Crdt(
+  "friends.proto",
+  "cloudstate.samples.chat.friends.Friends"
+);
+
+entity.defaultValue = () => new crdt.ORSet();
+
+function add(friend, ctx) {
+  ctx.state.add(friend.friend);
+  return {};
 }
 
-require("./presence").start(opts);
+function remove(friend, ctx) {
+  ctx.state.delete(friend.friend);
+  return {};
+}
+
+function getFriends(user, ctx) {
+  return {
+    friends: Array.from(ctx.state)
+  };
+}
+
+entity.commandHandlers = {
+  Add: add,
+  Remove: remove,
+  GetFriends: getFriends
+};
+
+module.exports = entity;

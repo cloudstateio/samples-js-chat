@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+import "cloudstate/entitykey.proto";
+
+package cloudstate.samples.chat.friends;
+
+message Friend {
+    string user = 1 [(.cloudstate.entity_key) = true];
+    string friend = 2;
+}
+
+message User {
+    string user = 1 [(.cloudstate.entity_key) = true];
+}
+
+message FriendsList {
+    repeated string friends = 1;
+}
+
+message Empty {
+}
+
+service Friends {
+    rpc Add(Friend) returns (Empty);
+    rpc Remove(Friend) returns (Empty);
+    rpc GetFriends(User) returns (FriendsList);
+}

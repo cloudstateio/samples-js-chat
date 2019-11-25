@@ -125,7 +125,7 @@ class MonitoredUsers {
   }
 }
 
-module.exports = (channels, presenceClient) => {
+module.exports = (channels, presenceClient, friendsClient) => {
   const onlineUsers = new OnlineUsers(presenceClient);
   const monitoredUsers = new MonitoredUsers(presenceClient);
 
@@ -137,6 +137,14 @@ module.exports = (channels, presenceClient) => {
 
     debug("Received new connection");
 
+    function monitor(user) {
+      debug("%s is monitoring %s", username, user);
+      monitoring.add(user);
+      monitoredUsers.monitor(user, channel.id, status => {
+        channel.send(status, user);
+      });
+    }
+
     channel.on("connectas", (user) => {
       debug("Connecting as %s", user);
       if (username !== null) {
@@ -145,6 +153,18 @@ module.exports = (channels, presenceClient) => {
       }
       username = user;
       onlineUsers.connect(username);
+      friendsClient.getFriends({user: username}, (err, friendsList) => {
+        if (err) {
+          console.log("Error getting friends: " + err)
+        } else {
+          if (friendsList.friends) {
+            friendsList.friends.forEach(friend => {
+              channel.send("friend", friend);
+              monitor(friend);
+            });
+          }
+        }
+      });
     });
 
     channel.on("close", () => {
@@ -168,11 +188,12 @@ module.exports = (channels, presenceClient) => {
     });
 
     channel.on("monitor", user => {
-      debug("%s is monitoring %s", username, user);
-      monitoring.add(user);
-      monitoredUsers.monitor(user, channel.id, status => {
-        channel.send(status, user);
+      friendsClient.add({user: username, friend: user}, (err, empty) => {
+        if (err) {
+          console.log("Error adding friend: %o", err)
+        }
       });
+      monitor(user);
     });
 
     channel.on("unmonitor", user => {

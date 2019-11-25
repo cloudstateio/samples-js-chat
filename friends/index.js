@@ -20,4 +20,4 @@ if (process.env.PORT) {
     opts.bindPort = process.env.PORT;
 }
 
-require("./presence").start(opts);
+require("./friends").start(opts);
