@@ -75,7 +75,7 @@ First create the npm `package.json` file:
 ```json
 {
   "dependencies": {
-    "cloudstate": "0.0.1"
+    "cloudstate": "0.0.2"
   },
   "scripts": {
     "prestart": "compile-descriptor friends.proto",
@@ -111,7 +111,7 @@ Now that we're setup, the first thing to do is create the gRPC interface that ou
 ```proto
 syntax = "proto3";
 
-import "cloudstate/entitykey.proto";
+import "cloudstate/entity_key.proto";
 
 package cloudstate.samples.chat.friends;
 
@@ -227,4 +227,4 @@ You may wish to scale the service up to see that it actually is replicating the 
 kubectl scale deploy/friends-deployment --replicas 3
 ```
 
-As an interesting side exercise to try, update the docker image to `cloudstateio/samples-java-chat-friends:latest`. This is a Java implementation of the friends service. Kubernetes will perform a rolling upgrade of the deployment. After that is complete (and, during the upgrade too), you should see that your friends list is still there, in spite of the fact that you have not deployed a database. The state was replicated from the JavaScript nodes to the Java nodes during the rolling upgrade. So, we just switched out a JavaScript based in memory store of friends with a Java based in memory store, without losing the state. This demonstrates a truly polyglot replicated state management solution.
+As an interesting side exercise to try, update the docker image to `cloudstateio/samples-java-chat-friends:latest`. This is a Java implementation of the friends service, the source code of which can be found [here](https://github.com/cloudstateio/samples-java-chat). Kubernetes will perform a rolling upgrade of the deployment. After that is complete (and, during the upgrade too), you should see that your friends list is still there, in spite of the fact that you have not deployed a database. The state was replicated from the JavaScript nodes to the Java nodes during the rolling upgrade. So, we just switched out a JavaScript based in memory store of friends with a Java based in memory store, without losing the state. This demonstrates a truly polyglot replicated state management solution.

@@ -23,7 +23,7 @@
     "directory": "friends"
   },
   "dependencies": {
-    "cloudstate": "0.0.1"
+    "cloudstate": "0.0.2"
   },
   "scripts": {
     "prestart": "compile-descriptor friends.proto",
