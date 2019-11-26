@@ -219,7 +219,9 @@ The `DEBUG` environment variable is optional, but enables some Cloudstate debug 
 kubectl apply -f friends.yaml
 ``` 
  
-Now go back to your browser. Now when you start monitoring a person, then disconnect, and reconnect, you should see your friends list come back. You may wish to scale the service up to see that it actually is replicating the state across multiple nodes:
+Now go back to your browser. Now when you start monitoring a person, then disconnect, and reconnect, you should see your friends list come back. Note that it may take a minute or so for the feature to start working, since prior to this attempts to connect to the service by the gateway failed and there may be backoffs and failed DNS lookup attempts cached.
+
+You may wish to scale the service up to see that it actually is replicating the state across multiple nodes:
 
 ```bash
 kubectl scale deploy/friends-deployment --replicas 3
