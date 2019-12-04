@@ -8,11 +8,29 @@ The application has three components, a presence stateful function, which uses a
 
 The UI is designed to allow connecting as multiple users in one browser window, this is for demonstration purposes, to make it straight forward to see real time interactions, serverside pushes etc, without needing to open many browser tabs. Each user is a separate iframe with a separate websocket connection.
 
-## Running in Kubernetes
+## Tutorial
 
-To run in Kubernetes you'll first need to install the CloudState operator. It's also recommended that you install Istio, version 1.2.0 is the minimum supported version. Istio is not absolutely necessary, however because CloudState uses gRPC, load balancing doesn't tend to work very well without a service mesh that understands HTTP/2, and can balance requests (streams) within a single HTTP/2 connection across many nodes.
+In this tutorial, we will do the following:
 
-### Installing Istio
+* Install Cloudstate and its dependencies to a Kubernetes cluster
+* Deploy the presence stateful service and the web gateway, and see that working
+* Implement the friends stateful service from scratch
+
+Note that the friends stateful service is already implemented in this repository, but the tutorial will implement it from scratch. There is no need to clone this repo.
+
+### Prerequisites
+
+To run this tutorial, you will need the following:
+
+* A Kubernetes cluster, with `kubectl` logged in as a user that has cluster admin (cluster admin is needed to install Cloudstate). Kubernetes 1.13 is the minimum required version.
+* A Docker repository that the Kubernetes cluster has the necessary credentials to pull from, with your local `docker` command authenticated to push to it.
+* [npm](https://www.npmjs.com/get-npm)
+
+### Installation
+
+Cloudstate can be installed by itself without any dependencies, however it is recommended that you also install Istio, version 1.2.0 is the minimum supported version. Istio is not absolutely necessary, however because CloudState uses gRPC, load balancing doesn't tend to work very well without a service mesh that understands HTTP/2, and can balance requests (streams) within a single HTTP/2 connection across many nodes.
+
+#### Installing Istio
 
 Istio can be installed by following the [Istio documentation](https://istio.io/docs/setup/getting-started/). Ensure that you enable Istio injection on whichever namespaces you're using. To get started quickly with a default Istio install, simply run:
 
@@ -28,7 +46,7 @@ And to enable sidecar injection on the default namespace:
 kubectl label namespace default istio-injection=enabled
 ```
 
-### Installing Cloudstate
+#### Installing Cloudstate
 
 To install Cloudstate, run the following:
 
@@ -37,7 +55,7 @@ kubectl create namespace cloudstate
 kubectl apply -n cloudstate -f https://github.com/cloudstateio/cloudstate/releases/download/v0.5.0/cloudstate-0.5.0.yaml
 ```
 
-### Installing the chat application
+### Deploying the chat application
 
 Now, let's start by installing the gateway and presence service by running the following:
 
@@ -64,11 +82,15 @@ As described above, the main index allows opening multiple chat window iframes. 
 
 To understand what you are observing here - the presence service is using a Conflict-free Replicated Data Type (CRDT) to replicate the current online state of all users across all the deployed nodes. No database is needed, the Cloudstate proxies form a cluster and gossip this state efficiently to one another, making it available for the code of the presence service to update, interrogate, and subscribe to changes for the purpose of push notifications.
 
-### Developing a new service
+### Implement the friends service
 
-Let's develop a new stateful service that stores the list of users that a user is monitoring, so that when they disconnect, and reconnect, that list can be restored. We will store this using another CRDT, this time using an [ORSet](https://cloudstate.io/docs/user/features/crdts.html#crdts-available-in-cloudstate) to store these users. We'll implement it using JavaScript, and we'll call it the friends service.
+Let's develop a new stateful service that stores the list of users that a user is monitoring, so that when they disconnect, and reconnect, that list can be restored. If you take a look in this repository, you will see the friends service is already implemented. The gateway is already configured to use it too, in fact if you look in the logs for the gateway, you'll see a lot of exceptions as it attempts to connect to it, though it isn't there.
 
-The web gateway has already been implemented to use this service, if it's available. We just need to implement it. Note that this tutorial is not going to go into all the details of what Cloudstate is and how it works, the [documentation](https://cloudstate.io/docs/user/features/index.html) is a good place to start if you want to understand that.
+If you didn't want to follow this tutorial, you could just deploy the friends service that we've already implemented, but what are you going to learn from that? So, start by creating a new directory anywhere on your machine.
+
+The friends service will be backed by a CRDT, this time using an [ORSet](https://cloudstate.io/docs/user/features/crdts.html#crdts-available-in-cloudstate) to store a users friends. We'll implement it in JavaScript.
+
+In this tutorial, we won't go into depth of Cloudstate itself and how to use it, the [documentation](https://cloudstate.io/docs/user/features/index.html) is a good place to start if you want to understand that.
 
 First create the npm `package.json` file:
 
