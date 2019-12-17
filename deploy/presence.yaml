@@ -6,6 +6,7 @@ metadata:
 spec:
   containers:
   - image: cloudstateio/samples-js-chat-presence:latest
+    name: "presence"
 
 ---
 kind: Role
