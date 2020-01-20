@@ -2,11 +2,11 @@
 
 This is a sample application demoing using CloudState to build a chat application in Node.js.
 
-Currently, there are two features, user presence, and friends, but in future we will add chat room support, push notifications for chat messages, etc.
+Currently, there are two features, user presence, and friends, but in the future we will add chat room support, push notifications for chat messages, etc.
 
 The application has three components, a presence stateful function, which uses a vote CRDT to store whether a user is currently online or not, a friends stateful function, which uses an ORSet CRDT to store a users friends, and a gateway, which is an express/ws application, that serves a UI. The gateway is not a Cloudstate service, it simply serves as a simple way to demonstrate the Cloudstate services in action.
 
-The UI is designed to allow connecting as multiple users in one browser window, this is for demonstration purposes, to make it straight forward to see real time interactions, serverside pushes etc, without needing to open many browser tabs. Each user is a separate iframe with a separate websocket connection.
+The UI is designed to allow connecting as multiple users in one browser window, this is for demonstration purposes, to make it straightforward to see real time interactions, serverside pushes etc, without needing to open many browser tabs. Each user is a separate iframe with a separate websocket connection.
 
 ## Tutorial
 
@@ -28,7 +28,7 @@ To run this tutorial, you will need the following:
 
 ### Installation
 
-Cloudstate can be installed by itself without any dependencies, however it is recommended that you also install Istio, version 1.2.0 is the minimum supported version. Istio is not absolutely necessary, however because CloudState uses gRPC, load balancing doesn't tend to work very well without a service mesh that understands HTTP/2, and can balance requests (streams) within a single HTTP/2 connection across many nodes.
+Cloudstate can be installed by itself without any dependencies, however it is recommended that you also install Istio, version 1.2.0 is the minimum supported version. Istio is not absolutely necessary, however because Cloudstate uses gRPC, load balancing doesn't tend to work very well without a service mesh that understands HTTP/2, and can balance requests (streams) within a single HTTP/2 connection across many nodes.
 
 #### Installing Istio
 
@@ -88,7 +88,7 @@ Let's develop a new stateful service that stores the list of users that a user i
 
 If you didn't want to follow this tutorial, you could just deploy the friends service that we've already implemented, but what are you going to learn from that? So, start by creating a new directory anywhere on your machine.
 
-The friends service will be backed by a CRDT, this time using an [ORSet](https://cloudstate.io/docs/user/features/crdts.html#crdts-available-in-cloudstate) to store a users friends. We'll implement it in JavaScript.
+The friends service will be backed by a CRDT, this time using an [ORSet](https://cloudstate.io/docs/user/features/crdts.html#crdts-available-in-cloudstate) to store a user's friends. We'll implement it in JavaScript.
 
 In this tutorial, we won't go into depth of Cloudstate itself and how to use it, the [documentation](https://cloudstate.io/docs/user/features/index.html) is a good place to start if you want to understand that.
 
@@ -160,7 +160,7 @@ service Friends {
 }
 ```
 
-This is a fairly unremarkable interface, it supports adding friends, removing friends and getting a list of friends. The one thing that is not standard is the use of `cloudstate.entity_key` annotations. This indicates to the Cloudstate proxy how to determine which entity an incoming request is for. In the above example, the `user` field on the `User` and `Friend` messages iss annotated with this, indicating our entities are identified by the user that owns them. When the proxy passes the request on to our code, it will enrich it with the current state of the CRDT for that entity.
+This is a fairly unremarkable interface, it supports adding friends, removing friends and getting a list of friends. The one thing that is not standard is the use of `cloudstate.entity_key` annotations. This indicates to the Cloudstate proxy how to determine which entity an incoming request is for. In the above example, the `user` field on the `User` and `Friend` messages is annotated with this, indicating our entities are identified by the user that owns them. When the proxy passes the request on to our code, it will enrich it with the current state of the CRDT for that entity.
 
 Now we create the code. Open a file called `index.js`. First some setup code:
 
@@ -175,7 +175,7 @@ const entity = new crdt.Crdt(
 entity.defaultValue = () => new crdt.ORSet();
 ```
 
-We've imported the Cloudstate CRDT support, created a new CRDT entity that is served by the `Friends` grpc service in `friends.proto`, and we've set a default value for the entity, should a command come in and no CRDT has yet been created for it - in this case, the default value is an empty ORSet.
+We've imported the Cloudstate CRDT support, created a new CRDT entity that is served by the `Friends` gRPC service in `friends.proto`, and we've set a default value for the entity, should a command come in and no CRDT has yet been created for it - in this case, the default value is an empty ORSet.
 
 Now we'll define some command handlers:
 
@@ -199,7 +199,7 @@ function getFriends(user, ctx) {
 
 It's just a set, the first parameter passed in to each handler is the gRPC method parameter, for `add` and `remove` that's a `Friend` message containing the friend to add or remove. The second parameter is the context, this, among other things, holds the current CRDT state (ie, the ORSet that we created before as the default value).
 
-Finally, we'll wire this command handlers up and start the gRPC server that will serve the entity:
+Finally, we'll wire the command handlers up and start the gRPC server that will serve the entity:
 
 ```js
 entity.commandHandlers = {
@@ -211,7 +211,7 @@ entity.commandHandlers = {
 entity.start();
 ```
 
-And now we're done, we just need to build and deploy. Build and push the docker image, you'll need to replace `DOCKER_REGISTRY` below with a registry that you have push access to and the Kubernetes installation that you're using can pull from:
+And now we're done, we just need to build and deploy. To build and push the docker image, you'll need to replace `DOCKER_REGISTRY` below with a registry that you have push access to and the Kubernetes installation that you're using can pull from:
 
 ```bash
 export DOCKER_REGISTRY=cloudstateio
@@ -249,4 +249,4 @@ You may wish to scale the service up to see that it actually is replicating the 
 kubectl scale deploy/friends-deployment --replicas 3
 ```
 
-As an interesting side exercise to try, update the docker image to `cloudstateio/samples-java-chat-friends:latest`. This is a Java implementation of the friends service, the source code of which can be found [here](https://github.com/cloudstateio/samples-java-chat). Kubernetes will perform a rolling upgrade of the deployment. After that is complete (and, during the upgrade too), you should see that your friends list is still there, in spite of the fact that you have not deployed a database. The state was replicated from the JavaScript nodes to the Java nodes during the rolling upgrade. So, we just switched out a JavaScript based in memory store of friends with a Java based in memory store, without losing the state. This demonstrates a truly polyglot replicated state management solution.
+As an interesting side exercise to try, update the docker image to `cloudstateio/samples-java-chat-friends:latest`. This is a Java implementation of the friends service, the source code of which can be found [here](https://github.com/cloudstateio/samples-java-chat). Kubernetes will perform a rolling upgrade of the deployment. After that is complete (and, during the upgrade too), you should see that your friends list is still there, in spite of the fact that you have not deployed a database. The state was replicated from the JavaScript nodes to the Java nodes during the rolling upgrade. So, we just switched out a JavaScript-based in-memory store of friends with a Java-based in-memory store, without losing the state. This demonstrates a truly polyglot replicated state management solution.
