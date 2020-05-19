@@ -26,7 +26,7 @@ To run this tutorial, you will need the following:
 * A Docker repository that the Kubernetes cluster has the necessary credentials to pull from, with your local `docker` command authenticated to push to it.
 * [npm](https://www.npmjs.com/get-npm)
 * [nvm](https://github.com/nvm-sh/nvm)
-* [node.js](https://nodejs.org/en/) We suggest to use version 12 which is recommended for most users in node.js official website. We can install it through command `nvm install v12` and `nvm use v12`.
+* [node.js](https://nodejs.org/en/) For easy sample app installation, we suggest to use version 12 which is recommended for most users in node.js official website. We can install it through command `nvm install v12` and `nvm use v12`. Feel free to try a different node.js version if needed (NOTE: if you want to try a different node.js version, you might need to modify the field "engines.node" in the file "package.json").
 ### Installation
 
 Cloudstate can be installed by itself without any dependencies, however it is recommended that you also install Istio, version 1.2.0 is the minimum supported version. Istio is not absolutely necessary, however because CloudState uses gRPC, load balancing doesn't tend to work very well without a service mesh that understands HTTP/2, and can balance requests (streams) within a single HTTP/2 connection across many nodes.
