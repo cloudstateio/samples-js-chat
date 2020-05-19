@@ -30,7 +30,16 @@ To run this tutorial, you will need the following:
 
 Cloudstate can be installed by itself without any dependencies, however it is recommended that you also install Istio, version 1.2.0 is the minimum supported version. Istio is not absolutely necessary, however because Cloudstate uses gRPC, load balancing doesn't tend to work very well without a service mesh that understands HTTP/2, and can balance requests (streams) within a single HTTP/2 connection across many nodes.
 
-#### Installing Istio
+### Running the Sample Application
+There are 2 ways to run the sample application:
+
+* Running local with minikube
+* Running on Kubernetes
+
+Pay careful attention to which sections apply to you.
+
+#### Installing Istio (Kubernetes only)
+**Don't add Istio if you are running on minikube**
 
 Istio can be installed by following the [Istio documentation](https://istio.io/docs/setup/getting-started/). Ensure that you enable Istio injection on whichever namespaces you're using. To get started quickly with a default Istio install, simply run:
 
@@ -64,23 +73,40 @@ kubectl apply -f https://raw.githubusercontent.com/cloudstateio/samples-js-chat/
 kubectl apply -f https://raw.githubusercontent.com/cloudstateio/samples-js-chat/master/deploy/gateway.yaml
 ```
 
-You may wish to scale the presence service up, to see that it works on multiple nodes:
+If you are NOT on minikube, you may wish to scale the presence service up, to see that it works on multiple nodes:
 
 ```sh
 kubectl scale deploy/presence-deployment --replicas 3
 ```
+
+### Exposing the service (kubernetes only)
+** Skip this section if running on minikube**
 
 Now you need to expose the service. The best way to do this, when using Istio, is to expose it through an ingress gateway. But for the purposes of this tutorial, it's easier to just use a Kubernetes TCP `LoadBalancer` `Service`:
 
 ```sh
 kubectl expose deployment gateway --type=LoadBalancer
 ```
-
 Now, watch the created service, and when it gets assigned an external IP, we can now use it, by opening `http://<external-ip>:3000` in a browser.
 
 As described above, the main index allows opening multiple chat window iframes. You can connect as multiple users, each user is represented by a websocket connection to one of the backend nodes. You can see those users statuses monitored.
 
 To understand what you are observing here - the presence service is using a Conflict-free Replicated Data Type (CRDT) to replicate the current online state of all users across all the deployed nodes. No database is needed, the Cloudstate proxies form a cluster and gossip this state efficiently to one another, making it available for the code of the presence service to update, interrogate, and subscribe to changes for the purpose of push notifications.
+
+### Port forward to expose your service (minikube only)
+Since minikube does not support LoadBalancers we will instead have to port forward our `gateway` service.  The first thing we need to find is the full name of one of our gateway pods.  To do this simply:
+
+```sh
+kubectl get pods
+```
+
+Next we can take the pod name and create a port forwarding from localhost to that pod.
+
+```sh
+minikube port-forward gateway-<SOME_ID> 3000:3000 
+```
+
+You now should be able to see the service running by directing your browser to `http://localhost:3000`
 
 ### Implement the friends service
 
@@ -211,6 +237,43 @@ entity.commandHandlers = {
 entity.start();
 ```
 
+### Building the Docker image for minikube
+
+Make sure that minikube is setup to use your local docker repository
+```sh
+eval $(minikube docker-env)
+```
+ Build the docker image to your local repository
+ ```sh
+ docker build -t ${DOCKER_REGISTRY}/samples-js-chat-friends:latest .
+ ```
+
+Now create a `StatefulService` descriptor for the friends service in a file called `friends.yaml`, being sure to update the image to use the docker registry you pushed to:
+
+```yaml
+apiVersion: cloudstate.io/v1alpha1
+kind: StatefulService
+metadata:
+  name: friends
+spec:
+  containers:
+  - image: samples-js-chat-friends:latest
+    name: "friends"
+    env:
+    - name: DEBUG
+      value: cloudstate*
+```
+
+The `DEBUG` environment variable is optional, but enables some Cloudstate debug logging which may be interesting to see. Deploy this:
+ 
+```bash
+kubectl apply -f friends.yaml
+``` 
+
+
+### Bulding the Docker image for Kubernetes 
+**Skip this section if running local on minikube**
+
 And now we're done, we just need to build and deploy. To build and push the docker image, you'll need to replace `DOCKER_REGISTRY` below with a registry that you have push access to and the Kubernetes installation that you're using can pull from:
 
 ```bash
@@ -230,6 +293,7 @@ metadata:
 spec:
   containers:
   - image: cloudstateio/samples-js-chat-friends:latest
+    name: "friends"
     env:
     - name: DEBUG
       value: cloudstate*
@@ -241,6 +305,8 @@ The `DEBUG` environment variable is optional, but enables some Cloudstate debug 
 kubectl apply -f friends.yaml
 ``` 
  
+## Result
+
 Now go back to your browser. Now when you start monitoring a person, then disconnect, and reconnect, you should see your friends list come back. Note that it may take a minute or so for the feature to start working, since prior to this attempts to connect to the service by the gateway failed and there may be backoffs and failed DNS lookup attempts cached.
 
 You may wish to scale the service up to see that it actually is replicating the state across multiple nodes:
