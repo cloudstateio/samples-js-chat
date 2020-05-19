@@ -111,7 +111,7 @@ First create the npm `package.json` file:
 We've defined a `prestart` method that compiles the gRRC descriptor (that we'll create in a moment), and a `start` method that will run our entity. We've also defined a `start-no-prestart` method, this will be used by our Docker image to run it without compiling the descriptor each time. Speaking of Docker, let's also create a `Dockerfile`:
 
 ```dockerfile
-FROM node:12.16.3
+FROM node:12.16.3-buster-slim
 
 WORKDIR /opt/friends
 COPY package*.json ./
