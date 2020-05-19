@@ -2,7 +2,7 @@
 # it's docker build has to run from the project root directory
 # as its context. Make sure to specify a context of .. when running
 # the docker build.
-FROM node:8.15
+FROM node:12.16.3
 RUN mkdir -p /opt/gateway /opt/presence /opt/friends
 COPY gateway/package*.json /opt/gateway/
 RUN cd /opt/gateway; npm install

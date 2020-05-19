@@ -11,6 +11,10 @@
   "bugs": {
     "url": "https://github.com/cloudstateio/samples-js-chat/issues"
   },
+  "engineStrict": true,
+  "engines": {
+    "node": "~12"
+  },
   "license": "Apache-2.0",
   "author": {
     "name": "James Roper",

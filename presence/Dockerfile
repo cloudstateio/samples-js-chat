@@ -1,4 +1,4 @@
-FROM node:8.15
+FROM node:12.16.3
 
 WORKDIR /opt/presence
 COPY package*.json ./
