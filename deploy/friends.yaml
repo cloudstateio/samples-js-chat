@@ -6,3 +6,5 @@ metadata:
 spec:
   containers:
   - image: cloudstateio/samples-js-chat-friends:latest
+    name: "friends"
+
