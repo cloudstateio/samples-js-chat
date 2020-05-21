@@ -6,7 +6,7 @@ Currently, there are two features, user presence, and friends, but in the future
 
 The application has three components, a presence stateful function, which uses a vote CRDT to store whether a user is currently online or not, a friends stateful function, which uses an ORSet CRDT to store a users friends, and a gateway, which is an express/ws application, that serves a UI. The gateway is not a Cloudstate service, it simply serves as a simple way to demonstrate the Cloudstate services in action.
 
-The UI is designed to allow connecting as multiple users in one browser window, this is for demonstration purposes, to make it straightforward to see real time interactions, serverside pushes etc, without needing to open many browser tabs. Each user is a separate iframe with a separate websocket connection.
+The UI is designed to allow connecting as multiple users in one browser window, this is for demonstration purposes, to make it straightforward to see real time interactions, server-side pushes etc, without needing to open many browser tabs. Each user is a separate iframe with a separate websocket connection.
 
 ## Tutorial
 
