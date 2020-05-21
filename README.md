@@ -25,7 +25,8 @@ To run this tutorial, you will need the following:
 * A Kubernetes cluster, with `kubectl` logged in as a user that has cluster admin (cluster admin is needed to install Cloudstate). Kubernetes 1.13 is the minimum required version.
 * A Docker repository that the Kubernetes cluster has the necessary credentials to pull from, with your local `docker` command authenticated to push to it.
 * [npm](https://www.npmjs.com/get-npm)
-
+* [nvm](https://github.com/nvm-sh/nvm)
+* [node.js](https://nodejs.org/en/) For easy sample app installation, we suggest to use version 12 which is recommended for most users in node.js official website. We can install it through command `nvm install v12` and `nvm use v12`. Feel free to try a different node.js version if needed (NOTE: if you want to try a different node.js version, you might need to modify the field "engines.node" in the file "package.json").
 ### Installation
 
 Cloudstate can be installed by itself without any dependencies, however it is recommended that you also install Istio, version 1.2.0 is the minimum supported version. Istio is not absolutely necessary, however because Cloudstate uses gRPC, load balancing doesn't tend to work very well without a service mesh that understands HTTP/2, and can balance requests (streams) within a single HTTP/2 connection across many nodes.
@@ -136,7 +137,7 @@ First create the npm `package.json` file:
 We've defined a `prestart` method that compiles the gRRC descriptor (that we'll create in a moment), and a `start` method that will run our entity. We've also defined a `start-no-prestart` method, this will be used by our Docker image to run it without compiling the descriptor each time. Speaking of Docker, let's also create a `Dockerfile`:
 
 ```dockerfile
-FROM node:8.15
+FROM node:12.16.3-buster-slim
 
 WORKDIR /opt/friends
 COPY package*.json ./
