@@ -11,15 +11,15 @@
   "bugs": {
     "url": "https://github.com/cloudstateio/samples-js-chat/issues"
   },
-  "engineStrict": true,
-  "engines": {
-    "node": "~12"
-  },
   "license": "Apache-2.0",
   "author": {
     "name": "James Roper",
     "email": "jroper2@gmail.com",
     "url": "https://jazzy.id.au"
+  },
+  "engineStrict": true,
+  "engines": {
+    "node": "~12"
   },
   "repository": {
     "type": "git",
@@ -27,7 +27,7 @@
     "directory": "presence"
   },
   "dependencies": {
-    "cloudstate": "0.0.2"
+    "cloudstate": "0.0.3"
   },
   "scripts": {
     "prestart": "compile-descriptor presence.proto",

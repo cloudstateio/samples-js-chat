@@ -62,10 +62,12 @@ function monitor(user, ctx) {
     ctx.onStateChange = state => {
       if (online !== state.atLeastOne) {
         online = state.atLeastOne;
+        console.log("onStateChange: "+user.name + " return {"+online+"}");
         return {online};
       }
     };
   }
+  console.log("monitor: "+user.name + " return {"+online+"}");
   return {online};
 }
 
