@@ -34,7 +34,10 @@ function remove(friend, ctx) {
   return {};
 }
 
-function getFriends(user, ctx) {
+function getFriends(user, ctx) {  
+  console.log("getFriends for user: "+ user, {
+    friends: Array.from(ctx.state)
+  });
   return {
     friends: Array.from(ctx.state)
   };
