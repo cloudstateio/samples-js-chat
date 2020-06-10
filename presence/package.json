@@ -33,8 +33,8 @@
     "prestart": "compile-descriptor presence.proto",
     "start": "node index.js",
     "start-no-prestart": "node index.js",
-    "dockerbuild": "docker build -t cloudstateio/samples-js-chat-presence:latest .",
-    "dockerpush": "docker push cloudstateio/samples-js-chat-presence:latest",
+    "dockerbuild": "docker build -t ${DOCKER_PUBLISH_TO:-cloudstateio}/samples-js-chat-presence:latest .",
+    "dockerpush": "docker push ${DOCKER_PUBLISH_TO:-cloudstateio}/samples-js-chat-presence:latest",
     "dockerbuildpush": "npm run dockerbuild && npm run dockerpush"
   }
 }
