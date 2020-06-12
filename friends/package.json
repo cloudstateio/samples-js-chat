@@ -17,17 +17,17 @@
     "email": "jroper2@gmail.com",
     "url": "https://jazzy.id.au"
   },
-  "engineStrict": true,
-  "engines": {
-    "node": "~12"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/cloudstateio/samples-js-chat",
     "directory": "friends"
   },
+  "engineStrict": true,
+  "engines": {
+    "node": "~12"
+  },
   "dependencies": {
-    "cloudstate": "0.0.2"
+    "cloudstate": "0.0.3"
   },
   "scripts": {
     "prestart": "compile-descriptor friends.proto",
