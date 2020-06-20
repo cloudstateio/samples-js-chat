@@ -1,9 +1,8 @@
-= Cloudstate Chat sample
+= Friends service - part of Cloudstate Chat sample
 Lightbend, 2020
 Version 2.0, 2020-06-15
 :description: "Friends" stateful service, part of the Cloudstate chat sample https://github.com/cloudstateio/samples-ui-chat
 :keywords: Cloudstate, stateful serverless, chat-sample
-:imagesdir: ../docs
 :sectnums:
 :toc:
 ifdef::env-github[]
@@ -20,30 +19,29 @@ endif::[]
 This is an implementation of the `Friends` service, which is part of Lightbend Cloudstate https://github.com/cloudstateio/samples-ui-chat[Chat sample]. The code is written in Javascript and runs as a node.js server. The screenshot below shows the user interface of the chat application:
 
 image::../docs/Cloudstate_Sample_ChatApplication.png[Cloudstate Sample - Chat Application]
+{nbsp} +
 
 `Friends` is a stateful service which has no UI. Its function is to manage the state of the user entity:
-* entity key = `User` defined by the user name
-* value = `FriendsList` which is a list of `Friend`. A `Friend` is defined by a user name and an avatar icon.
 
-We will see the detailed schema of the entities in the <<Friends Tutorial>> section. For now let's just visualize how the state of the `Friends` service is rendered in the chat UI:
+* entity key = `User` defined by the user name
+* value = `FriendsList` which is a list of `Friend`. A `Friend` is an object defined by an user name and an avatar icon.
+
+We will see the detailed schema of the entities in the <<friends-service-descriptor>> section. For now let's just visualize how the state of the `Friends` service is rendered in the chat UI:
 
 * User "Albert" has 2 friends (Niels and Paul)
 
-The tracking of the online/offline status is delegated to a separate service named `Presence`. The diagram below shows the chat application is architected as 3 microservices, deployed in a Kubernetes cluster. For now, let's ignore how the user access the Chat UI using a browser and how the Chat UI service communicates with other services. In this section, we focus only on the design of the `Friends` service as stateful serverless using https://cloudstate.io/[Cloudstate]
-
+The tracking of the online/offline status is delegated to a separate service named `Presence`. The diagram below shows the chat application is architected as 3 microservices, deployed in a Kubernetes cluster. For now, let's ignore how the user access the Chat UI using a browser and how the Chat UI service communicates with other services. In this section, we focus only on the design of the `Friends` service as stateful serverless using https://github.com/cloudstateio/cloudstate[Cloudstate]
 
 image::../docs/ChatAppDiagram_HighlightFriendService.png[Chat Sample Diagram]
 
 [[javascript-implementation,Javascript implementation of the Friends service]]
 == Javascript implementation of the Friends service
 
-The `Friends` service is *stateful*, ie. the state of the user entity is fully preserved. If the user entity went out of scope in the Chat UI (eg. user disconnects or closing the browser). When the user connects back again, the ChatUI invokes the `Friends` service to retrieve the state (ie. the `FriendsList`).
+The `Friends` service is *stateful*, ie. the state of the user entity is fully preserved. If the user entity went out of scope in the Chat UI (eg. user disconnected or closed the browser). When the user connects back again, the Chat UI invokes the `Friends` service to retrieve the state (ie. the `FriendsList`).
 
-NOTE: if you want to skip the tutorial, you can jump directly to the <<Deploying on Kubernetes>> section. The deployment config uses by default the docker image we have already prepared.
+The friends service is backed by a CRDT using an https://cloudstate.io/docs/core/current/user/features/crdts.html#crdts-available-in-cloudstate[Observed-Removed Set (ORSet)] to store the user's `FriendsList`.
 
-The friends service is backed by a CRDT using an [ORSet](https://cloudstate.io/docs/user/features/crdts.html#crdts-available-in-cloudstate) to store the user's `FriendsList`.
-
-In this tutorial, we won't go into depth of Cloudstate itself and how to use it, the [documentation](https://cloudstate.io/docs/user/features/index.html) is a good place to start to learn about Cloudstate.
+In this tutorial, we won't go into depth of Cloudstate itself and how to use it, the https://cloudstate.io/docs/core/current/user/features/index.html[Cloudstate Overview documentation] is a good place to start to learn about Cloudstate.
 
 First create the npm `package.json` file:
 
@@ -86,9 +84,10 @@ node_modules
 npm-debug.log
 ----
 
-Now that we're setup, the first thing to do is create the gRPC interface that our friends service will implement. Create a file called `friends.proto` with the following content:
+Now that we're setup, the first thing to do is create the gRPC interface that our `Friends` service will implement. Create a file named `friends.proto` with the following content:
 
-.friends.proto
+[[friends-service-descriptor,Friends service descriptor]]
+.friends.proto: the GRPC service descriptor of the `Friends` service
 [source,protobuf]
 ----
 syntax = "proto3";
@@ -125,7 +124,7 @@ service Friends {
 }
 ----
 
-This is a fairly unremarkable interface, it supports adding friends, removing friends and getting a list of friends. The one thing that is not standard is the use of `cloudstate.entity_key` annotations. This indicates to the Cloudstate proxy how to determine which entity an incoming request is for. In the above example, the `user` field on the `User` and `FriendRequest` messages is annotated as "entity key". Which indicates our entities are identified by the user that owns them. The Cloudstate proxy takes care of maintaining the state (the CRDT representing the `FriendList` of the user) for that entity.
+This is a fairly unremarkable interface, it supports adding friends, removing friends and getting a list of friends. The one thing that is not standard is the use of `cloudstate.entity_key` annotations. This indicates to the Cloudstate proxy (more on that later) how to determine which entity an incoming request is for. In the above example, the `user` field on the `User` and `FriendRequest` messages is annotated as "entity key". Which indicates our entities are identified by the user that owns them. The Cloudstate proxy takes care of maintaining the state (the CRDT representing the `FriendList`) for that user entity.
 
 Now we create the code. Open a file called `index.js`. First some setup code:
 
@@ -141,9 +140,9 @@ const entity = new crdt.Crdt(
 entity.defaultValue = () => new crdt.ORSet();
 ----
 
-We've imported the Cloudstate CRDT support, created a new CRDT entity that is served by the `Friends` gRPC service in `friends.proto`, and we've set a default value for the entity, should a command come in and no CRDT has yet been created for it - in this case, the default value is an empty ORSet.
+We've imported the Cloudstate CRDT support, created a new CRDT entity that is served by the `Friends` gRPC service in `friends.proto`, and we've set a default value for the entity, should a command come in and no CRDT has yet been created for it, the value will bne defaulted to an empty ORSet.
 
-Now we'll define some command handlers:
+Now we define some command handlers:
 
 [source,JavaScript]
 ----
@@ -157,14 +156,14 @@ function remove(friend, ctx) {
   return {};
 }
 
-function getFriends(user, ctx) {
+function getFriends(user, ctx) {  
   return {
     friends: Array.from(ctx.state)
   };
 }
 ----
 
-It's just a set, the first parameter passed in to each handler is the gRPC method parameter, for `add` and `remove` that's a `Friend` message containing the friend to add or remove. The second parameter is the context, this, among other things, holds the current CRDT state (ie, the ORSet that we created before as the default value).
+It's just a set, the first parameter passed in to each handler is the gRPC method parameter, for `add` and `remove` that's a `FriendRequest` message containing the friend to add or remove. The second parameter is the context, this, among other things, holds the current CRDT state (ie, the ORSet that we created before as the default value).
 
 Finally, we'll wire the command handlers up and start the gRPC server that will serve the entity:
 
@@ -182,7 +181,7 @@ entity.start();
 == Building the Friends service
 === Preparing to build
 
-Install https://github.com/nvm-sh/nvm#installing-and-updating[nvm] and https://nodejs.org/en/download/[npm]. And verify the installation was:
+Install https://github.com/nvm-sh/nvm#installing-and-updating[nvm] and https://nodejs.org/en/download/[npm]. And verify the installation is OK:
 
 [source,shell]
 ----
@@ -222,7 +221,7 @@ DOCKER_PUBLISH_TO=mydockerregistry
 # build docker image
 docker build . -t $DOCKER_PUBLISH_TO/samples-js-chat-friends:latest
 
-# authenticate with your registry
+# authenticate with your Docker registry
 docker login
 
 # push the docker image to your registry
@@ -234,9 +233,9 @@ docker push $DOCKER_PUBLISH_TO/samples-js-chat-friends:latest
 
 === Install gRPCurl
 
-`Friends` is a microservice designed to be consumed by a https://github.com/cloudstateio/samples-ui-chat[Chat application] which has a UI. Communication between the Cloudstate `user-function` uses the gRPC protocol. https://github.com/fullstorydev/grpcurl[gRPCurl] is a command-line tool allowing to query gRPC servers in the same fashion as `curl` with REST servers. 
+`Friends` is a microservice designed to be consumed by a https://github.com/cloudstateio/samples-ui-chat[Chat application] which has a UI. The communication between the Cloudstate `user-function` uses the gRPC protocol. https://github.com/fullstorydev/grpcurl[gRPCurl] is a command-line tool allowing to query gRPC servers in the same fashion as `curl` with REST servers. 
 
-https://github.com/fullstorydev/grpcurl#installation[Install gRPCurl] from `brew` if you are on MacOS or directly from binaries for other OS. If the installation is successful, you'd be able to invoke `grpcurl -version` in a terminal:
+https://github.com/fullstorydev/grpcurl#installation[Install gRPCurl] from `brew` if you are on MacOS or directly from binaries for other OS. If the installation is successful, you should be able to invoke `grpcurl -version` in a terminal:
 
 [source,shell]
 ----
@@ -246,34 +245,37 @@ grpcurl 1.6.0
 
 === Starting the service
 
-We cannot test the `Friends` service by querying it directly. Why is that? In the <<javascript-implementation>> section, the Javascript code we wrote barely defines the data schema and the behavior of the service. And yet we have a full blown stateful service, ie. the service is able to store/retrieve the `FriendList` of an user entity. And this, with the benefits of scalability and high availability, without writing any code.
+We cannot test the `Friends` service by querying it directly. Why is that? In the <<javascript-implementation>> section, the Javascript code we wrote barely defines the data schema and the behavior of the service. And yet we have a full blown stateful service, ie. the service is able to store/retrieve the `FriendList` of an user entity. And this, with the benefits of scalability and high availability, without writing any code for the state storage & retrieval.
 
-Our `Friends` service gains the state management ability thanks to Cloudstate. In Cloudstate terminology, the service we developped, here the Friends Javascript code, is called a `user-function`. As shown in https://cloudstate.io/docs/core/current/user/features/index.html[Using Cloudstate, Overview], the `user-function` "talks" the outside world via the intermediary of a Cloudstate proxy. This proxy "undertands" the data schema and behavior of our service (the `user-function`) thanks to the https://github.com/cloudstateio/samples-js-chat/blob/master/friends/friends.proto[Service descriptor]. So that the proxy is able to enrich the communication to our service with state management.
-
-NOTE: In the remaining of this guide, `Friends` is referred to by multiple qualifications which are identical. The wording will be chosen to best suit the context.
-+
-* It is a *service* from the business point of view
-* It is a *microservice* in termns of architecture design
-* It is a *user-function* from the point of view of Cloudstate
+Our `Friends` service gains the state management ability thanks to Cloudstate. In Cloudstate terminology, the service we developped, here the Friends Javascript code, is called a `user-function`. As shown in https://cloudstate.io/docs/core/current/user/features/index.html[Using Cloudstate, Overview], the `user-function` communicates with the outside world via the intermediary of a Cloudstate proxy. This proxy "undertands" the data schema and behavior of our service (the `user-function`) thanks to the https://github.com/cloudstateio/samples-js-chat/blob/master/friends/friends.proto[Service descriptor]. So that the proxy is able to enrich the communication to our service with state management.
 
 
-To test our `Friends` service, we use https://docs.docker.com/engine/reference/commandline/run/[docker run] to run two images:
+In the remaining of this guide, `Friends` is referred to by multiple qualifications which are identical. The wording will be chosen to best suit the context:
 
-* The Cloudstate proxy, which expose the entrypoint to test the service. This image is already prebuilt for us by Cloudstate dev team. We can get it at `cloudstateio/cloudstate-proxy-dev-mode`
+* `Friends` is a *service* from the business point of view
+* `Friends` is a *microservice* in terms of architecture design
+* `Friends` is a *user-function* in the context of Cloudstate
+
+
+Therefore, to test our `Friends` service we need both the Cloudstate proxy and our own `Friends` user-function to be running. We use https://docs.docker.com/engine/reference/commandline/run/[docker run] to run two images:
+
+* The Cloudstate proxy, which exposes the entrypoint to test the service. This image is already prebuilt for us by Cloudstate dev team. We can get it at `cloudstateio/cloudstate-proxy-dev-mode`
 * The Cloudstate `user-function`, which is the Friends service we have already built above into the docker image `samples-js-chat-friends`
 
 [source,shell]
 ----
 # in terminal 1, run the cloudstate proxy docker image in interactive mode (-it)
-# exposing the CS proxy port 9000 to the same 9000 on the host
-# NOTE: ignore the connection errors to the Friends `user-function` which is not started yet
+# exposing the CS proxy port 9000 to the same 9000 on the host machine
+# NOTE: ignore the connection errors to the Friends `user-function` which is not yet started
 docker run -it --rm --name cloudstate-proxy -p 9000:9000 \
   cloudstateio/cloudstate-proxy-dev-mode \
   -Dcloudstate.proxy.user-function-port=8080 \
   -Dcloudstate.proxy.user-function-interface=samples-js-chat-friends
 
-# in terminal 2, run the docker image of the Friends `user-function` within the SAME network namespace as the CS proxy
+# in terminal 2, run the docker image of the Friends `user-function`
+# within the SAME network namespace as the CS proxy
 DOCKER_PUBLISH_TO=mydockerregistry
+
 docker run -it --rm --network container:cloudstate-proxy --name js-friends \
   $DOCKER_PUBLISH_TO/samples-js-chat-friends
 ----
@@ -290,15 +292,17 @@ Discover the services exposed at our gRPC server, implemented by the Cloudstate 
 ----
 $ grpcurl -plaintext localhost:9000 list
 
+# console output
 cloudstate.samples.chat.friends.Friends
 grpc.reflection.v1alpha.ServerReflection
 ----
 
 Then inspect the metadata of the `Friends` service
-[source,protobuf]
+[source,shell]
 ----
 $ grpcurl -plaintext localhost:9000 describe cloudstate.samples.chat.friends.Friends
 
+# console output
 cloudstate.samples.chat.friends.Friends is a service:
 service Friends {
   rpc Add ( .cloudstate.samples.chat.friends.FriendRequest ) returns ( .cloudstate.samples.chat.friends.Empty );
@@ -309,17 +313,17 @@ service Friends {
 
 Now let's test the `Add` and `GetFriends` methods. These methods requires input parameters which should be serialized as JSON string. The data schema is defined in https://github.com/cloudstateio/samples-js-chat/blob/master/friends/friends.proto[Friends service descriptor]. Or use `grpcurl ... describe cloudstate.samples.chat.friends.Friends.FriendRequest` to get the schema.
 
-[source,protobuf]
+[source,shell]
 ----
-grpcurl -plaintext -d '{"user": "Albert", "friend": {"user":"Neils", "avatar":"img2.png"}}' \
+$ grpcurl -plaintext -d '{"user": "Albert", "friend": {"user":"Neils", "avatar":"img2.png"}}' \
   localhost:9000 \
   cloudstate.samples.chat.friends.Friends/Add
 
-grpcurl -plaintext -d '{"user": "Albert", "friend": {"user":"Paul", "avatar":"img3.png"}}' \
+$ grpcurl -plaintext -d '{"user": "Albert", "friend": {"user":"Paul", "avatar":"img3.png"}}' \
   localhost:9000 \
   cloudstate.samples.chat.friends.Friends/Add
 
-grpcurl -plaintext -d '{"user": "Albert"}' \
+$ grpcurl -plaintext -d '{"user": "Albert"}' \
   localhost:9000 \
   cloudstate.samples.chat.friends.Friends/GetFriends
 
