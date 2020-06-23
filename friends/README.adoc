@@ -249,6 +249,8 @@ We cannot test the `Friends` service by querying it directly. Why is that? In th
 
 Our `Friends` service gains the state management ability thanks to Cloudstate. In Cloudstate terminology, the service we developped, here the Friends Javascript code, is called a `user-function`. As shown in https://cloudstate.io/docs/core/current/user/features/index.html[Using Cloudstate, Overview], the `user-function` communicates with the outside world via the intermediary of a Cloudstate proxy. This proxy "undertands" the data schema and behavior of our service (the `user-function`) thanks to the https://github.com/cloudstateio/samples-js-chat/blob/master/friends/friends.proto[Service descriptor]. So that the proxy is able to enrich the communication to our service with state management.
 
+image::https://cloudstate.io/docs/core/current/user/features/overview.svg[Cloudstate Overview,480,315,align="center",link="https://cloudstate.io/docs/core/current/user/features/index.html"]
+{nbsp} +
 
 In the remaining of this guide, `Friends` is referred to by multiple qualifications which are identical. The wording will be chosen to best suit the context:
 
