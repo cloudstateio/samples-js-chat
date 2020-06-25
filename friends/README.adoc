@@ -13,24 +13,19 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 
-
-== Overview of the Friends service
-
-This is an implementation of the `Friends` service, which is part of Lightbend Cloudstate https://github.com/cloudstateio/samples-ui-chat[Chat sample]. The code is written in Javascript and runs as a node.js server. The screenshot below shows the user interface of the chat application:
-
-image::../docs/Cloudstate_Sample_ChatApplication.png[Cloudstate Sample - Chat Application]
-{nbsp} +
+[[friends-service-overview]]
+== Friends service - Overview
 
 `Friends` is a stateful service which has no UI. Its function is to manage the state of the user entity:
 
 * entity key = `User` defined by the user name
 * value = `FriendsList` which is a list of `Friend`. A `Friend` is an object defined by an user name and an avatar icon.
 
-We will see the detailed schema of the entities in the <<friends-service-descriptor>> section. For now let's just visualize how the state of the `Friends` service is rendered in the chat UI:
+We will see the detailed schema of the entities in the <<friends-service-descriptor>> section. For now let's just visualize how the state of the `Friends` service is rendered in the <<../README.adoc#Overview,Chat UI overview>>: The user "Albert" has 2 friends (Niels and Paul).
 
-* User "Albert" has 2 friends (Niels and Paul)
+The diagram below shows the chat application is architected as 3 microservices, deployed in a Kubernetes cluster. For now, let's ignore how the user access the Chat UI using a browser and how the Chat UI service communicates with other services. The application flow is explained in https://github.com/cloudstateio/samples-ui-chat[Cloudstate Chat Sample].
 
-The tracking of the online/offline status is delegated to a separate service named `Presence`. The diagram below shows the chat application is architected as 3 microservices, deployed in a Kubernetes cluster. For now, let's ignore how the user access the Chat UI using a browser and how the Chat UI service communicates with other services. In this section, we focus only on the design of the `Friends` service as stateful serverless using https://github.com/cloudstateio/cloudstate[Cloudstate]
+In this section, we focus only on the design of the `Friends` service as stateful serverless using https://github.com/cloudstateio/cloudstate[Cloudstate]
 
 image::../docs/ChatAppDiagram_HighlightFriendService.png[Chat Sample Diagram]
 
@@ -179,29 +174,6 @@ entity.start();
 ----
 
 == Building the Friends service
-=== Preparing to build
-
-Install https://github.com/nvm-sh/nvm#installing-and-updating[nvm] and https://nodejs.org/en/download/[npm]. And verify the installation is OK:
-
-[source,shell]
-----
-$ nvm --version
-0.35.3
-
-$ npm --version
-6.14.5
-----
-
-Now we can prepare the build
-
-[source,shell]
-----
-cd ./friends
-
-nvm install
-nvm use
-npm install
-----
 
 === Build the Docker image
 
@@ -215,7 +187,13 @@ The docker image tag will be `mydockerregistry/samples-js-chat-friends:latest`
 
 [source,shell]
 ----
+cd ./friends
+
+nvm install
+nvm use
+npm install
 npm run prestart
+
 DOCKER_PUBLISH_TO=mydockerregistry
 
 # build docker image
@@ -231,24 +209,15 @@ docker push $DOCKER_PUBLISH_TO/samples-js-chat-friends:latest
 
 == Testing
 
-=== Install gRPCurl
-
-`Friends` is a microservice designed to be consumed by a https://github.com/cloudstateio/samples-ui-chat[Chat application] which has a UI. The communication between the Cloudstate `user-function` uses the gRPC protocol. https://github.com/fullstorydev/grpcurl[gRPCurl] is a command-line tool allowing to query gRPC servers in the same fashion as `curl` with REST servers. 
-
-https://github.com/fullstorydev/grpcurl#installation[Install gRPCurl] from `brew` if you are on MacOS or directly from binaries for other OS. If the installation is successful, you should be able to invoke `grpcurl -version` in a terminal:
-
-[source,shell]
-----
-$ grpcurl -version
-grpcurl 1.6.0
-----
-
+[[testing-start-service]]
 === Starting the service
 
 We cannot test the `Friends` service by querying it directly. Why is that? In the <<javascript-implementation>> section, the Javascript code we wrote barely defines the data schema and the behavior of the service. And yet we have a full blown stateful service, ie. the service is able to store/retrieve the `FriendList` of an user entity. And this, with the benefits of scalability and high availability, without writing any code for the state storage & retrieval.
 
 Our `Friends` service gains the state management ability thanks to Cloudstate. In Cloudstate terminology, the service we developped, here the Friends Javascript code, is called a `user-function`. As shown in https://cloudstate.io/docs/core/current/user/features/index.html[Using Cloudstate, Overview], the `user-function` communicates with the outside world via the intermediary of a Cloudstate proxy. This proxy "undertands" the data schema and behavior of our service (the `user-function`) thanks to the https://github.com/cloudstateio/samples-js-chat/blob/master/friends/friends.proto[Service descriptor]. So that the proxy is able to enrich the communication to our service with state management.
 
+image::https://cloudstate.io/docs/core/current/user/features/overview.svg[Cloudstate Overview,480,315,align="center",link="https://cloudstate.io/docs/core/current/user/features/index.html"]
+{nbsp} +
 
 In the remaining of this guide, `Friends` is referred to by multiple qualifications which are identical. The wording will be chosen to best suit the context:
 
@@ -264,15 +233,15 @@ Therefore, to test our `Friends` service we need both the Cloudstate proxy and o
 
 [source,shell]
 ----
-# in terminal 1, run the cloudstate proxy docker image in interactive mode (-it)
+# terminal 1: run the cloudstate proxy docker image
 # exposing the CS proxy port 9000 to the same 9000 on the host machine
-# NOTE: ignore the connection errors to the Friends `user-function` which is not yet started
+# NOTE: ignore the connection errors b/c the `user-function` is not yet started
 docker run -it --rm --name cloudstate-proxy -p 9000:9000 \
   cloudstateio/cloudstate-proxy-dev-mode \
   -Dcloudstate.proxy.user-function-port=8080 \
   -Dcloudstate.proxy.user-function-interface=samples-js-chat-friends
 
-# in terminal 2, run the docker image of the Friends `user-function`
+# terminal 2: run the docker image of the `user-function`
 # within the SAME network namespace as the CS proxy
 DOCKER_PUBLISH_TO=mydockerregistry
 
@@ -283,9 +252,9 @@ docker run -it --rm --network container:cloudstate-proxy --name js-friends \
 image::../docs/DockerRun_Friends_UserFunction.png[Docker Run, Friends "user-function"]
 
 
-=== Querying the service
+=== Testing the GRPC service 
 
-Now we can use https://github.com/fullstorydev/grpcurl[gRPCurl] to test our service
+With a new terminal session, we can use https://github.com/fullstorydev/grpcurl[gRPCurl] to test our service. Make sure you have installed gRPCurl as mentioned in the <<Javascrip dev environment setup>> section.
 
 Discover the services exposed at our gRPC server, implemented by the Cloudstate proxy:
 [source,shell]
@@ -342,8 +311,9 @@ $ grpcurl -plaintext -d '{"user": "Albert"}' \
 }
 ----
 
-== Deploying on Kubernetes
+NOTE: You can also monitor the request/response activities of the GRPC server by checking the logs in the terminal sessions running the 2 docker images (the Cloudstate proxy and the `user-function` of the `Friends` service).
 
-To fulfill its goal as a stateful serverless service, the `Friends` service must be deployed in a Kubernetes cluster.
 
-The deployment process is described in details in the https://github.com/cloudstateio/samples-ui-chat[Cloudstate Chat Sample], which a chat room application with an UI. Allowing us to test the full integration of multiple microservices collaborating together.
+== Deployment
+
+The deployment is described in details in the https://github.com/cloudstateio/samples-ui-chat[Cloudstate Chat Sample]. This is a chat room application with a basic UI allowing to test the integration of multiple Cloudstate services collaborating together.
