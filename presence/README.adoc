@@ -13,28 +13,23 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 
-== Overview of the Presence service
+[[presence-service-overview]]
+== Presence service - Overview
 
-This is an implementation of the `Presence` service, which is part of Lightbend Cloudstate https://github.com/cloudstateio/samples-ui-chat[Chat sample]. The code is written in Javascript and runs as a node.js server. The screenshot below shows the user interface of the chat application:
-
-image::../docs/Cloudstate_Sample_ChatApplication.png[Cloudstate Sample - Chat Application]
-{nbsp} +
-
-`Presence` is a stateful service which has no UI. Its function is to manage the state of the user entity:
+`Presence` is a stateful service which has no UI. It uses a https://cloudstate.io/docs/core/current/user/features/crdts.html#crdts-available-in-cloudstate[Vote CRDT] 
+to track the state (online/offline status) of the user entity:
 
 * entity key = `User` defined by the user name
 * value = `OnlineStatus` which is a boolean value
 
-The management of the `FriendList` is delegated to a separate service named <<../friends/README.adoc#,Friends>>. The diagram below shows the chat application is architected as 3 microservices, deployed in a Kubernetes cluster. 
+The diagram below shows the chat application is architected as 3 microservices, deployed in a Kubernetes cluster. 
 
-For now, let's ignore the application flow which is explained in https://github.com/cloudstateio/samples-ui-chat[Chat sample]. Also, we'll skip the coding tutorial which is very similar to that of the `Friends` service: <<../friends/README.adoc#javascript-implementation, Javascript implementation of the Friends service>>. In this section, we focus only on the build and the testing of the `Presence` service:
+For now, let's ignore the application flow which is explained in https://github.com/cloudstateio/samples-ui-chat[Cloudstate Chat Sample]. Also, we'll skip the coding tutorial which is very similar to that of the `Friends` service: <<../friends/README.adoc#javascript-implementation, Javascript implementation of the Friends service>>. In this section, we focus only on the build and the testing of the `Presence` service:
 
 image::../docs/ChatAppDiagram_HighlightPresenceService.png[Chat Sample Diagram]
 
 
 == Building the Presence service
-=== Javascrip dev environment setup
-include::../docs/js-dev-setup.adoc[]
 
 === Build the Docker image
 

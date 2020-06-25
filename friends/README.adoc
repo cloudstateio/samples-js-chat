@@ -13,24 +13,19 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 
-
-== Overview of the Friends service
-
-This is an implementation of the `Friends` service, which is part of Lightbend Cloudstate https://github.com/cloudstateio/samples-ui-chat[Chat sample]. The code is written in Javascript and runs as a node.js server. The screenshot below shows the user interface of the chat application:
-
-image::../docs/Cloudstate_Sample_ChatApplication.png[Cloudstate Sample - Chat Application]
-{nbsp} +
+[[friends-service-overview]]
+== Friends service - Overview
 
 `Friends` is a stateful service which has no UI. Its function is to manage the state of the user entity:
 
 * entity key = `User` defined by the user name
 * value = `FriendsList` which is a list of `Friend`. A `Friend` is an object defined by an user name and an avatar icon.
 
-We will see the detailed schema of the entities in the <<friends-service-descriptor>> section. For now let's just visualize how the state of the `Friends` service is rendered in the chat UI:
+We will see the detailed schema of the entities in the <<friends-service-descriptor>> section. For now let's just visualize how the state of the `Friends` service is rendered in the <<../README.adoc#Overview,Chat UI overview>>: The user "Albert" has 2 friends (Niels and Paul).
 
-* User "Albert" has 2 friends (Niels and Paul)
+The diagram below shows the chat application is architected as 3 microservices, deployed in a Kubernetes cluster. For now, let's ignore how the user access the Chat UI using a browser and how the Chat UI service communicates with other services. The application flow is explained in https://github.com/cloudstateio/samples-ui-chat[Cloudstate Chat Sample].
 
-The tracking of the online/offline status is delegated to a separate service named <<../presence/README.adoc#,Presence>>. The diagram below shows the chat application is architected as 3 microservices, deployed in a Kubernetes cluster. For now, let's ignore how the user access the Chat UI using a browser and how the Chat UI service communicates with other services. The application flow is explained in https://github.com/cloudstateio/samples-ui-chat[Chat sample]. In this section, we focus only on the design of the `Friends` service as stateful serverless using https://github.com/cloudstateio/cloudstate[Cloudstate]
+In this section, we focus only on the design of the `Friends` service as stateful serverless using https://github.com/cloudstateio/cloudstate[Cloudstate]
 
 image::../docs/ChatAppDiagram_HighlightFriendService.png[Chat Sample Diagram]
 
@@ -179,8 +174,6 @@ entity.start();
 ----
 
 == Building the Friends service
-=== Javascrip dev environment setup
-include::../docs/js-dev-setup.adoc[]
 
 === Build the Docker image
 
