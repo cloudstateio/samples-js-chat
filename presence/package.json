@@ -27,6 +27,7 @@
     "directory": "presence"
   },
   "dependencies": {
+    "minimist": ">=0.2.1",
     "cloudstate": "0.0.3"
   },
   "scripts": {
