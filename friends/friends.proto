@@ -4,9 +4,14 @@ import "cloudstate/entity_key.proto";
 
 package cloudstate.samples.chat.friends;
 
-message Friend {
+message Friend{
+    string user = 1;
+    string avatar = 2;
+}
+
+message FriendRequest {
     string user = 1 [(.cloudstate.entity_key) = true];
-    string friend = 2;
+    Friend friend = 2;
 }
 
 message User {
@@ -14,14 +19,14 @@ message User {
 }
 
 message FriendsList {
-    repeated string friends = 1;
+    repeated Friend friends = 1;
 }
 
 message Empty {
 }
 
 service Friends {
-    rpc Add(Friend) returns (Empty);
-    rpc Remove(Friend) returns (Empty);
+    rpc Add(FriendRequest) returns (Empty);
+    rpc Remove(FriendRequest) returns (Empty);
     rpc GetFriends(User) returns (FriendsList);
 }
