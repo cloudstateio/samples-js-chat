@@ -173,6 +173,7 @@ entity.commandHandlers = {
 entity.start();
 ----
 
+[[building-the-friends-service]]
 == Building the Friends service
 
 === Build the Docker image
@@ -206,10 +207,9 @@ docker login
 docker push $DOCKER_PUBLISH_TO/samples-js-chat-friends:latest
 ----
 
+[[testing-friends-service]]
+== Testing Friends service
 
-== Testing
-
-[[testing-start-service]]
 === Starting the service
 
 We cannot test the `Friends` service by querying it directly. Why is that? In the <<javascript-implementation>> section, the Javascript code we wrote barely defines the data schema and the behavior of the service. And yet we have a full blown stateful service, ie. the service is able to store/retrieve the `FriendList` of an user entity. And this, with the benefits of scalability and high availability, without writing any code for the state storage & retrieval.

@@ -24,11 +24,12 @@ to track the state (online/offline status) of the user entity:
 
 The diagram below shows the chat application is architected as 3 microservices, deployed in a Kubernetes cluster. 
 
-For now, let's ignore the application flow which is explained in https://github.com/cloudstateio/samples-ui-chat[Cloudstate Chat Sample]. Also, we'll skip the coding tutorial which is very similar to that of the `Friends` service: <<../friends/README.adoc#javascript-implementation, Javascript implementation of the Friends service>>. In this section, we focus only on the build and the testing of the `Presence` service:
+For now, let's ignore the application flow which is explained in https://github.com/cloudstateio/samples-ui-chat[Cloudstate Chat Sample]. Also, we'll skip the coding tutorial which is very similar to that of the `Friends` service: <<../friends/README.adoc#javascript-implementation,Javascript implementation of the Friends service>>. In this section, we focus only on the build and the testing of the `Presence` service:
 
 image::../docs/ChatAppDiagram_HighlightPresenceService.png[Chat Sample Diagram]
 
 
+[[building-the-presence-service]]
 == Building the Presence service
 
 === Build the Docker image
@@ -66,7 +67,7 @@ docker push $DOCKER_PUBLISH_TO/samples-js-chat-presence:latest
 
 === Starting the service
 
-Testing the `Presence` service follows the same procedure as that of the `Friends` service. You may want to read the <<../friends/README.adoc#testing-start-service,Testing Friends service>> section for a more detailed introduction. Here we proceed directly to starting the docker images:
+Testing the `Presence` service follows the same procedure as that of the `Friends` service. You may want to read the <<../friends/README.adoc#testing-friends-service,Testing Friends service>> section for a more detailed introduction. Here we proceed directly to starting the docker images:
 
 [source,shell]
 ----
