@@ -36,7 +36,7 @@ This is at deployment time, when all the services collaborate together that we c
 
 The deployment is described in details in the https://github.com/cloudstateio/samples-ui-chat[Cloudstate Chat Sample].
 
-
+[[js-devenv-setup-for-cloudstate]]
 == Javascript Dev environment setup for Cloudstate
 
 === Javascript 
