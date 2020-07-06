@@ -28,13 +28,16 @@ image::docs/Cloudstate_Sample_ChatApplication.png[Cloudstate Sample - Chat Appli
 
 The `Friends` and `Presence` services have no UI. In this repo, we build these services and test them using `docker` and `grpcurl`.
 
-A detailed tutorial is described in <<../friends/README.adoc#javascript-implementation, Javascript implementation of the Friends service>>. As the design of these services is quite similar, it is not necessary to repeat for the `Presence` service.
+A detailed tutorial is described in <<friends/README.adoc#javascript-implementation, Javascript implementation of the Friends service>>. As the design of these services is quite similar, it is not necessary to repeat for the `Presence` service.
 
 == Deployment
 
 This is at deployment time, when all the services collaborate together that we can really appreciate the true benefits of microservices. And in particular their stateful and serverless abilities. By using https://github.com/cloudstateio/cloudstate[Cloudstate] library and deploying on Kubernetes, your services store/retrieve state without requiring you to write any code nor manage any storage.
 
-The deployment is described in details in the https://github.com/cloudstateio/samples-ui-chat[Cloudstate Chat Sample].
+The deployment is described in details in the https://github.com/cloudstateio/samples-ui-chat[Cloudstate Chat Sample]. The deployment is mentioned as a heads-up showing the big picture of the end result. We don't have yet all the constituants to deploy the entire Chat application.
+
+Our goal here is to build and test the `Friends` and `Presence` services. For now, the first step is to setup the dev environment. We will get to the Chat application deployment after we would have successfully tested these services.
+
 
 [[js-devenv-setup-for-cloudstate]]
 == Javascript Dev environment setup for Cloudstate
