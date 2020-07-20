@@ -24,7 +24,7 @@ to track the state (online/offline status) of the user entity:
 
 The diagram below shows the chat application is architected as 3 microservices, deployed in a Kubernetes cluster. 
 
-For now, let's ignore the application flow which is explained in https://github.com/cloudstateio/samples-ui-chat[Cloudstate Chat Sample]. Also, we'll skip the coding tutorial which is very similar to that of the `Friends` service: <<../friends/README.adoc#javascript-implementation,Javascript implementation of the Friends service>>. In this section, we focus only on the build and the testing of the `Presence` service:
+For now, let's ignore the application flow which is explained in https://github.com/cloudstateio/samples-ui-chat[Cloudstate Chat Sample]. Also, we'll skip the coding tutorial which is very similar to that of the `Friends` service: <<../friends/README.adoc#javascript-implementation,JavaScript implementation of the Friends service>>. In this section, we focus only on the build and the testing of the `Presence` service:
 
 image::../docs/ChatAppDiagram_HighlightPresenceService.png[Chat Sample Diagram]
 
@@ -88,7 +88,7 @@ docker run -it --rm --network container:cloudstate-proxy --name js-presence \
 ----
 
 
-=== Testing the GRPC service 
+=== Testing the gRPC service 
 
 We can use https://github.com/fullstorydev/grpcurl[gRPCurl] to test our service. Make sure you have installed gRPCurl as mentioned in the <<Javascrip dev environment setup>> section.
 
@@ -143,7 +143,7 @@ $ grpcurl -plaintext -d '{"name": "Albert"}' \
 }
 ----
 
-NOTE: You can also monitor the request/response activities of the GRPC server by checking the logs in the terminal sessions running the 2 docker images (the Cloudstate proxy and the `user-function` of the `Presence` service).
+NOTE: You can also monitor the request/response activities of the gRPC server by checking the logs in the terminal sessions running the 2 docker images (the Cloudstate proxy and the `user-function` of the `Presence` service).
 
 == Deployment
 
