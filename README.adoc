@@ -15,6 +15,8 @@ endif::[]
 
 == Overview
 
+NOTE: This sample is a work-in-progress, and is not up-to-date with the latest changes in Cloudstate or Lightbend Cloudstate. Please see the Shopping Cart samples for the most recent examples of a Cloudstate app instead.
+
 This is the implementation of the `Friends` and `Presence` services, which are part of Lightbend Cloudstate https://github.com/cloudstateio/samples-ui-chat[Cloudstate Chat Sample]. The code is written in Javascript and runs as a Node.js server. The screenshot below shows the user interface of the chat application:
 
 image::docs/Cloudstate_Sample_ChatApplication.png[Cloudstate Sample - Chat Application]
