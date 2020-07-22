@@ -44,7 +44,7 @@ Our goal here is to build and test the `Friends` and `Presence` services. For no
 [[js-devenv-setup-for-cloudstate]]
 == JavaScript Dev environment setup for Cloudstate
 
-=== JavaScript 
+=== JavaScript
 
 * Install https://github.com/nvm-sh/nvm#install--update-script[nvm] (node version manager)
 ** Check with `nvm --version`, version 0.34.0+ recommended
@@ -64,7 +64,7 @@ Our goal here is to build and test the `Friends` and `Presence` services. For no
 
 === gRPCurl for testing gRPC servers
 
-The communication between the Cloudstate `user-function` uses the gRPC protocol. https://github.com/fullstorydev/grpcurl[gRPCurl] is a command-line tool allowing to query gRPC servers in the same fashion as `curl` with REST servers. 
+The communication between the Cloudstate `user-function` uses the gRPC protocol. https://github.com/fullstorydev/grpcurl[gRPCurl] is a command-line tool allowing to query gRPC servers in the same fashion as `curl` with REST servers.
 
 https://github.com/fullstorydev/grpcurl#installation[Install gRPCurl] from `brew` if you are on macOS or directly from binaries for other OS. If the installation is successful, you should be able to invoke `grpcurl -version` in a terminal:
 

@@ -38,46 +38,10 @@ The friends service is backed by a CRDT using an https://cloudstate.io/docs/core
 
 In this tutorial, we won't go into depth of Cloudstate itself and how to use it, the https://cloudstate.io/docs/core/current/user/features/index.html[Cloudstate Overview documentation] is a good place to start to learn about Cloudstate.
 
-First create the npm `package.json` file:
+First we create some files common to Node.js development and building Docker image:
 
-[source,JSON]
-----
-{
-  "dependencies": {
-    "cloudstate": "0.0.2"
-  },
-  "scripts": {
-    "prestart": "compile-descriptor friends.proto",
-    "start": "node index.js",
-    "start-no-prestart": "node index.js"
-  }
-}
-----
-
-We've defined a `prestart` method that compiles the gRRC descriptor (that we'll create in a moment), and a `start` method that will run our entity. We've also defined a `start-no-prestart` method, this will be used by our Docker image to run it without compiling the descriptor each time. Speaking of Docker, let's also create a `Dockerfile`:
-
-.Dockerfile
-[source,Dockerfile]
-----
-FROM node:12.16.3-buster-slim
-
-WORKDIR /opt/friends
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run prestart
-EXPOSE 8080
-ENV DEBUG=cloudstate*
-ENTRYPOINT [ "npm", "run", "start-no-prestart" ]
-----
-
-And an accompanying `.dockerignore` file that ignores the `node_modules` directory and npm log file. This helps to keep the docker image size minimal.
-
-..dockerignore
-----
-node_modules
-npm-debug.log
-----
+* https://github.com/cloudstateio/samples-js-chat/blob/master/friends/package.json[package.json]
+* https://github.com/cloudstateio/samples-js-chat/blob/master/friends/Dockerfile[Dockerfile]
 
 Now that we're setup, the first thing to do is create the gRPC interface that our `Friends` service will implement. Create a file named `friends.proto` with the following content:
 
@@ -151,7 +115,7 @@ function remove(friend, ctx) {
   return {};
 }
 
-function getFriends(user, ctx) {  
+function getFriends(user, ctx) {
   return {
     friends: Array.from(ctx.state)
   };
@@ -193,7 +157,6 @@ cd ./friends
 nvm install
 nvm use
 npm install
-npm run prestart
 
 DOCKER_PUBLISH_TO=mydockerregistry
 
@@ -210,7 +173,7 @@ docker push $DOCKER_PUBLISH_TO/samples-js-chat-friends:latest
 [[testing-friends-service]]
 == Testing Friends service
 
-=== Starting the service
+=== Need a Cloudstate proxy
 
 We cannot test the `Friends` service by querying it directly. Why is that? In the <<javascript-implementation>> section, the JavaScript code we wrote barely defines the data schema and the behavior of the service. And yet we have a full blown stateful service, ie. the service is able to store/retrieve the `FriendList` of an user entity. And this, with the benefits of scalability and high availability, without writing any code for the state storage & retrieval.
 
@@ -225,41 +188,50 @@ In the remaining of this guide, `Friends` is referred to by multiple qualificati
 * `Friends` is a *microservice* in terms of architecture design
 * `Friends` is a *user-function* in the context of Cloudstate
 
+Therefore, to test our `Friends` service we need both the Cloudstate proxy and our own `Friends` user-function to be running. To achieve that, we need two docker images:
 
-Therefore, to test our `Friends` service we need both the Cloudstate proxy and our own `Friends` user-function to be running. We use https://docs.docker.com/engine/reference/commandline/run/[docker run] to run two images:
-
-* The Cloudstate proxy, which exposes the entrypoint to test the service. This image is already prebuilt for us by Cloudstate dev team. We can get it at `cloudstateio/cloudstate-proxy-dev-mode`
+* The Cloudstate proxy, which exposes the entrypoint to test the `Friends` service. This image is already prebuilt for us by the Cloudstate project. We can get it at `cloudstateio/cloudstate-proxy-dev-mode:0.5.1`
 * The Cloudstate `user-function`, which is the Friends service we have already built above into the docker image `samples-js-chat-friends`
+
+
+=== Customize docker-compose.yaml
+
+We use https://docs.docker.com/compose/#compose-documentation[docker-compose] to run these docker images together. Before starting, you must edit the `docker-compose.yaml` to replace the prebuilt `cloudstateio/samples-js-chat-friends:latest` by your own that you had published in  the <<building-the-friends-service,Building the Friends service>> step.
 
 [source,shell]
 ----
-# terminal 1: run the cloudstate proxy docker image
-# exposing the CS proxy port 9000 to the same 9000 on the host machine
-# NOTE: ignore the connection errors b/c the `user-function` is not yet started
-docker run -it --rm --name cloudstate-proxy -p 9000:9000 \
-  cloudstateio/cloudstate-proxy-dev-mode \
-  -Dcloudstate.proxy.user-function-port=8080 \
-  -Dcloudstate.proxy.user-function-interface=samples-js-chat-friends
+# REPLACE (in docker-compose.yaml)
+  friends-impl:
+    image: cloudstateio/samples-js-chat-friends:latest
 
-# terminal 2: run the docker image of the `user-function`
-# within the SAME network namespace as the CS proxy
-DOCKER_PUBLISH_TO=mydockerregistry
-
-docker run -it --rm --network container:cloudstate-proxy --name js-friends \
-  $DOCKER_PUBLISH_TO/samples-js-chat-friends
+# BY your own docker image, for example:
+  friends-impl:
+    image: mydockerregistry/samples-js-chat-friends:latest
 ----
 
-image::../docs/DockerRun_Friends_UserFunction.png[Docker Run, Friends "user-function"]
+
+=== Starting the service
+
+Now we can start the Cloudstate proxy along with the `Friends` service
+
+[source,shell]
+----
+$ cd ./friends
+$ docker-compose up
+----
+{nbsp} +
+
+image::../docs/DockerCompose_Friends_UserFunction.png[docker-compose, Friends "user-function"]
 
 
-=== Testing the gRPC service 
+=== Testing with gRPCurl
 
-With a new terminal session, we can use https://github.com/fullstorydev/grpcurl[gRPCurl] to test our service. Make sure you have installed gRPCurl as mentioned in the <<Javascrip dev environment setup>> section.
+With a new terminal session, we can use https://github.com/fullstorydev/grpcurl[gRPCurl] to test our service. Make sure you have installed gRPCurl as mentioned in the <<../README.adoc#js-devenv-setup-for-cloudstate,JavaScript Dev environment setup for Cloudstate>> section.
 
 Discover the services exposed at our gRPC server, implemented by the Cloudstate proxy:
 [source,shell]
 ----
-$ grpcurl -plaintext localhost:9000 list
+$ grpcurl -plaintext localhost:9001 list
 
 # console output
 cloudstate.samples.chat.friends.Friends
@@ -269,7 +241,7 @@ grpc.reflection.v1alpha.ServerReflection
 Then inspect the metadata of the `Friends` service
 [source,shell]
 ----
-$ grpcurl -plaintext localhost:9000 describe cloudstate.samples.chat.friends.Friends
+$ grpcurl -plaintext localhost:9001 describe cloudstate.samples.chat.friends.Friends
 
 # console output
 cloudstate.samples.chat.friends.Friends is a service:
@@ -280,20 +252,20 @@ service Friends {
 }
 ----
 
-Now let's test the `Add` and `GetFriends` methods. These methods requires input parameters which should be serialized as JSON string. The data schema is defined in https://github.com/cloudstateio/samples-js-chat/blob/master/friends/friends.proto[Friends service descriptor]. Or use `grpcurl ... describe cloudstate.samples.chat.friends.Friends.FriendRequest` to get the schema.
+Finally, let's test the `Add` and `GetFriends` methods. These methods requires input parameters which should be serialized as JSON string. The data schema is defined in https://github.com/cloudstateio/samples-js-chat/blob/master/friends/friends.proto[Friends service descriptor]. Or use `grpcurl ... describe cloudstate.samples.chat.friends.Friends.FriendRequest` to get the schema.
 
 [source,shell]
 ----
 $ grpcurl -plaintext -d '{"user": "Albert", "friend": {"user":"Neils", "avatar":"img2.png"}}' \
-  localhost:9000 \
+  localhost:9001 \
   cloudstate.samples.chat.friends.Friends/Add
 
 $ grpcurl -plaintext -d '{"user": "Albert", "friend": {"user":"Paul", "avatar":"img3.png"}}' \
-  localhost:9000 \
+  localhost:9001 \
   cloudstate.samples.chat.friends.Friends/Add
 
 $ grpcurl -plaintext -d '{"user": "Albert"}' \
-  localhost:9000 \
+  localhost:9001 \
   cloudstate.samples.chat.friends.Friends/GetFriends
 
 # console output
@@ -311,7 +283,7 @@ $ grpcurl -plaintext -d '{"user": "Albert"}' \
 }
 ----
 
-NOTE: You can also monitor the request/response activities of the gRPC server by checking the logs in the terminal sessions running the 2 docker images (the Cloudstate proxy and the `user-function` of the `Friends` service).
+NOTE: You can also monitor the request/response activities of the gRPC server by checking the logs in the terminal session running `docker-compose`
 
 
 == Deployment

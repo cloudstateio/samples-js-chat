@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  # Cloudstate proxy providing state management for our stateful service
+  # This proxy also serves as entrypoint
+  cloudstate-proxy:
+    image: cloudstateio/cloudstate-proxy-dev-mode:0.5.1
+    networks:
+      - friends-network
+    environment:
+      USER_FUNCTION_HOST: friends-userfunc
+      USER_FUNCTION_PORT: 8080
+    depends_on:
+      - friends-userfunc
+    ports:
+      # map the container port 9000 (of the Cloudstate proxy) to port 9001 on the host
+      - "9001:9000"
+
+  # The "user-function" which is a Cloudstate-aware service implementing the business logic
+  friends-userfunc:
+    image: cloudstateio/samples-js-chat-friends:latest
+    networks:
+      - friends-network
+    environment:
+      # enable additional logs
+      DEBUG: cloudstate*
+
+# The Cloudstate user-function must use the same network namespace than its Cloudstate proxy
+# similar to a deployment on Kubernetes where
+# the user container and the CS-Proxy sidecar share the network namespace of the pod
+networks:
+  friends-network:

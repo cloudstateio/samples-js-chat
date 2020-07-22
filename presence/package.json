@@ -28,13 +28,15 @@
   },
   "dependencies": {
     "minimist": ">=0.2.1",
-    "cloudstate": "0.0.3"
+    "cloudstate": "0.0.3",
+    "@grpc/proto-loader": "^0.1.0",
+    "google-protobuf": "^3.0.0",
+    "grpc": "^1.20.2"
   },
   "scripts": {
-    "prestart": "compile-descriptor presence.proto",
+    "build": "compile-descriptor ./presence.proto",
     "start": "node index.js",
-    "start-no-prestart": "node index.js",
-    "dockerbuild": "docker build -t ${DOCKER_PUBLISH_TO:-cloudstateio}/samples-js-chat-presence:latest .",
+    "dockerbuild": "docker build -f ./Dockerfile -t ${DOCKER_PUBLISH_TO:-cloudstateio}/samples-js-chat-presence:latest ../..",
     "dockerpush": "docker push ${DOCKER_PUBLISH_TO:-cloudstateio}/samples-js-chat-presence:latest",
     "dockerbuildpush": "npm run dockerbuild && npm run dockerpush"
   }
