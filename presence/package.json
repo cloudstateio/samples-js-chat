@@ -35,9 +35,6 @@
   },
   "scripts": {
     "build": "compile-descriptor ./presence.proto",
-    "start": "node index.js",
-    "dockerbuild": "docker build -f ./Dockerfile -t ${DOCKER_PUBLISH_TO:-cloudstateio}/samples-js-chat-presence:latest ../..",
-    "dockerpush": "docker push ${DOCKER_PUBLISH_TO:-cloudstateio}/samples-js-chat-presence:latest",
-    "dockerbuildpush": "npm run dockerbuild && npm run dockerpush"
+    "start": "node index.js"
   }
 }

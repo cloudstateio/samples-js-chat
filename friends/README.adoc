@@ -154,10 +154,6 @@ The docker image tag will be `mydockerregistry/samples-js-chat-friends:latest`
 ----
 cd ./friends
 
-nvm install
-nvm use
-npm install
-
 DOCKER_PUBLISH_TO=mydockerregistry
 
 # build docker image
@@ -196,7 +192,7 @@ Therefore, to test our `Friends` service we need both the Cloudstate proxy and o
 
 === Customize docker-compose.yaml
 
-We use https://docs.docker.com/compose/#compose-documentation[docker-compose] to run these docker images together. Before starting, you must edit the `docker-compose.yaml` to replace the prebuilt `cloudstateio/samples-js-chat-friends:latest` by your own that you had published in  the <<building-the-friends-service,Building the Friends service>> step.
+We use https://docs.docker.com/compose/#compose-documentation[docker-compose] to run these docker images together. Before starting, you must edit https://github.com/cloudstateio/samples-js-chat/blob/master/docker-compose.yaml[docker-compose.yaml] to replace the prebuilt `cloudstateio/samples-js-chat-friends:latest` by your own that you had published in the <<building-the-friends-service,Building the Friends service>> step.
 
 [source,shell]
 ----
@@ -216,17 +212,18 @@ Now we can start the Cloudstate proxy along with the `Friends` service
 
 [source,shell]
 ----
-$ cd ./friends
+$ cd (where docker-compose.yaml is located)
+
 $ docker-compose up
 ----
 {nbsp} +
 
-image::../docs/DockerCompose_Friends_UserFunction.png[docker-compose, Friends "user-function"]
+image::../docs/DockerCompose_CSproxy_UserFunction.png[docker-compose, Friends "user-function"]
 
 
 === Testing with gRPCurl
 
-With a new terminal session, we can use https://github.com/fullstorydev/grpcurl[gRPCurl] to test our service. Make sure you have installed gRPCurl as mentioned in the <<../README.adoc#js-devenv-setup-for-cloudstate,JavaScript Dev environment setup for Cloudstate>> section.
+With a new terminal session, we can use `gRPCurl` to test our service. Make sure you have installed `gRPCurl` as mentioned in the <<../README.adoc#tool-prerequisites,Tools Prerequisites>> section.
 
 Discover the services exposed at our gRPC server, implemented by the Cloudstate proxy:
 [source,shell]

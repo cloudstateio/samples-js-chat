@@ -55,9 +55,10 @@ services:
 
 
 #------------------------------------------------------------------------
-# The Cloudstate user-function must use the same network namespace'
-# as its Cloudstate proxy. Similar to a deployment on Kubernetes where
-# the user container and the CS-Proxy sidecar share the network namespace of the pod
+# This section is optional but it is better to emphasize that the pair
+# Cloudstate proxy/user-function should be in a separate network namespace
+# Similar to a deployment on Kubernetes where
+# the user container and the CS-Proxy sidecar are deployed in a same pod
 #------------------------------------------------------------------------
 networks:
   friends-network:

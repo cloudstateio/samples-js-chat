@@ -46,10 +46,6 @@ The docker image tag will be `mydockerregistry/samples-js-chat-presence:latest`
 ----
 cd ./presence
 
-nvm install
-nvm use
-npm install
-
 DOCKER_PUBLISH_TO=mydockerregistry
 
 # build docker image
@@ -66,23 +62,27 @@ docker push $DOCKER_PUBLISH_TO/samples-js-chat-presence:latest
 
 === Starting the service
 
-Testing the `Presence` service follows the same procedure as that of the `Friends` service. You may want to read the <<../friends/README.adoc#testing-friends-service,Testing Friends service>> section for a more detailed introduction. Here we proceed directly to starting the docker images of both the Cloudstate proxy and the `Presence` service itself:
+Testing the `Presence` service follows the same procedure as that of the `Friends` service. You may want to read the <<../friends/README.adoc#testing-friends-service,Testing Friends service>> section for a more detailed introduction.
+
+* Edit https://github.com/cloudstateio/samples-js-chat/blob/master/docker-compose.yaml[docker-compose.yaml] to replace the prebuilt image `cloudstateio/samples-js-chat-presence` by the docker image you have just published in the previous step.
+* Start the docker images of both the Cloudstate proxy and the `Presence` service
 
 [source,shell]
 ----
-$ cd ./presence
+$ cd (where docker-compose.yaml is located)
+
 $ docker-compose up
 ----
 
 === Testing with gRPCurl
 
-We can use https://github.com/fullstorydev/grpcurl[gRPCurl] to test our service. Make sure you have installed gRPCurl as mentioned in the <<../README.adoc#js-devenv-setup-for-cloudstate,JavaScript Dev environment setup for Cloudstate>> section.
+We can use `gRPCurl` to test our service. Make sure you have installed `gRPCurl` as mentioned in the <<../README.adoc#tool-prerequisites,Tools Prerequisites>> section.
 
 Discover the services exposed at our gRPC server, implemented by the Cloudstate proxy:
 
 [source,shell]
 ----
-$ grpcurl -plaintext localhost:9001 list
+$ grpcurl -plaintext localhost:9002 list
 
 # console output
 cloudstate.samples.chat.presence.Presence
@@ -93,7 +93,7 @@ Then review the metadata of the `Presence` service
 
 [source,shell]
 ----
-$ grpcurl -plaintext localhost:9001 describe cloudstate.samples.chat.presence.Presence
+$ grpcurl -plaintext localhost:9002 describe cloudstate.samples.chat.presence.Presence
 
 # console output
 cloudstate.samples.chat.presence.Presence is a service:
@@ -111,7 +111,7 @@ The `Connect` and `Monitor` methods return to the client a response as a stream.
 ----
 # Open a new terminal session and run (Ctrl-C to stop/restart)
 $ grpcurl -plaintext -d '{"name": "Albert"}' \
-  localhost:9001 \
+  localhost:9002 \
   cloudstate.samples.chat.presence.Presence/Monitor
 
 # console output: {} means user "Albert" is not yet connected
@@ -120,7 +120,7 @@ $ grpcurl -plaintext -d '{"name": "Albert"}' \
 
 # Open a new terminal session and run (Ctrl-C to stop/restart)
 $ grpcurl -plaintext -d '{"name": "Albert"}' \
-  localhost:9001 \
+  localhost:9002 \
   cloudstate.samples.chat.presence.Presence/Connect
 
 # console output:
