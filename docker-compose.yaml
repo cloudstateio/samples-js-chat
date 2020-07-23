@@ -2,26 +2,6 @@ version: "3.8"
 
 services:
   #------------------------------------------------------------------------
-  # The "user-function" are Cloudstate-aware services
-  # which implement the business logic of the Chat application
-  #------------------------------------------------------------------------
-  friends-userfunc:
-    image: cloudstateio/samples-js-chat-friends:latest
-    networks:
-      - friends-network
-    environment:
-      # enable additional logs
-      DEBUG: cloudstate*
-    
-  presence-userfunc:
-    image: cloudstateio/samples-js-chat-presence:latest
-    networks:
-      - presence-network
-    environment:
-      # enable additional logs
-      DEBUG: cloudstate*
-
-  #------------------------------------------------------------------------
   # Cloudstate proxy provides to the services implemented in "user-function"
   # - state management
   # - entrypoint for external access
@@ -29,37 +9,31 @@ services:
   #------------------------------------------------------------------------
   cloudstate-proxy-friends:
     image: cloudstateio/cloudstate-proxy-dev-mode:0.5.1
-    networks:
-      - friends-network
     environment:
-      USER_FUNCTION_HOST: friends-userfunc
       USER_FUNCTION_PORT: 8080
-    depends_on:
-      - friends-userfunc
-    ports:
-      # map the container (Cloudstate proxy) port 9000 to port 9001 on the host
-      - "9001:9000"
+    ports: ["9001:9000"] # map the container (Cloudstate proxy) port 9000 to port 9001 on the host
   
   cloudstate-proxy-presence:
     image: cloudstateio/cloudstate-proxy-dev-mode:0.5.1
-    networks:
-      - presence-network
     environment:
-      USER_FUNCTION_HOST: presence-userfunc
       USER_FUNCTION_PORT: 8080
-    depends_on:
-      - presence-userfunc
-    ports:
-      # map the container (Cloudstate proxy) port 9000 to port 9002 on the host
-      - "9002:9000"
+    ports: ["9002:9000"] # map the container (Cloudstate proxy) port 9000 to port 9002 on the host
 
-
-#------------------------------------------------------------------------
-# This section is optional but it is better to emphasize that the pair
-# Cloudstate proxy/user-function should be in a separate network namespace
-# Similar to a deployment on Kubernetes where
-# the user container and the CS-Proxy sidecar are deployed in a same pod
-#------------------------------------------------------------------------
-networks:
-  friends-network:
-  presence-network:
+  #------------------------------------------------------------------------
+  # The "user-function" are Cloudstate-aware services
+  # which implement the business logic of the Chat application
+  #------------------------------------------------------------------------
+  friends-userfunc:
+    image: cloudstateio/samples-js-chat-friends:latest
+    # use the same network stack than the container of the Cloudstate proxy
+    # Similar to a deployment on Kubernetes where
+    # the user container and its CS-Proxy sidecar are deployed in a same pod
+    network_mode: service:cloudstate-proxy-friends 
+    environment:
+      DEBUG: cloudstate*  # enable additional logs
+    
+  presence-userfunc:
+    image: cloudstateio/samples-js-chat-presence:latest
+    network_mode: service:cloudstate-proxy-presence 
+    environment:
+      DEBUG: cloudstate*  # enable additional logs
