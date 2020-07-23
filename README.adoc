@@ -41,30 +41,21 @@ The deployment is described in details in the https://github.com/cloudstateio/sa
 Our goal here is to build and test the `Friends` and `Presence` services. For now, the first step is to setup the dev environment. We will get to the Chat application deployment after we would have successfully tested these services.
 
 
-[[js-devenv-setup-for-cloudstate]]
-== JavaScript Dev environment setup for Cloudstate
-
-=== JavaScript 
-
-* Install https://github.com/nvm-sh/nvm#install--update-script[nvm] (node version manager)
-** Check with `nvm --version`, version 0.34.0+ recommended
-* Install https://www.npmjs.com/get-npm[npm] (node package manager)
-** Check with `npm -v`, version 6.14.3+ recommended
-* Install the protobuf compiler.
-    ** Check with `protoc --version`, version 3.0.0+ recommended
-    ** Mac OS X `brew install protobuf`
-    ** Linux `sudo apt install protobuf-compiler`
-    ** Or https://developers.google.com/protocol-buffers/docs/downloads[alternatively] (src and bins)
-
+[[tool-prerequisites]]
+== Tools Prerequisites
 
 === Docker
+
+Cloudstate services are deployed on a cluster complying to Kubernetes deployment model. Docker is used to package the Cloudstate-aware service that you design into a container.
 
 * Install https://www.docker.com/get-started[Docker]
 ** Check with `docker version`, version v19.03+ is recommended
 
 === gRPCurl for testing gRPC servers
 
-The communication between the Cloudstate `user-function` uses the gRPC protocol. https://github.com/fullstorydev/grpcurl[gRPCurl] is a command-line tool allowing to query gRPC servers in the same fashion as `curl` with REST servers. 
+The communication between the Cloudstate `user-function` uses the gRPC protocol. https://github.com/fullstorydev/grpcurl[gRPCurl] is a command-line tool allowing to query gRPC servers in the same fashion as `curl` with REST servers.
+
+`gRPCurl` is not a deployment tool per-se. It is used to make a quick integration test of your services before deployment.
 
 https://github.com/fullstorydev/grpcurl#installation[Install gRPCurl] from `brew` if you are on macOS or directly from binaries for other OS. If the installation is successful, you should be able to invoke `grpcurl -version` in a terminal:
 
@@ -73,3 +64,16 @@ https://github.com/fullstorydev/grpcurl#installation[Install gRPCurl] from `brew
 $ grpcurl -version
 grpcurl 1.6.0
 ----
+
+
+=== Optional for Local JavaScript Development
+
+`nvm` and `npm` tools are NOT needed to build the Docker images, deploy and test the `Friends` and `Presence` services. In case you want to play around with the JavaScript code you need to install: 
+
+* Install https://github.com/nvm-sh/nvm#install--update-script[nvm] (node version manager)
+** Check with `nvm --version`, version 0.34.0+ recommended
+* Install https://www.npmjs.com/get-npm[npm] (node package manager)
+** Check with `npm -v`, version 6.14.3+ recommended
+
+
+*(end)*

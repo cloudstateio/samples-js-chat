@@ -16,13 +16,13 @@ endif::[]
 [[presence-service-overview]]
 == Presence service - Overview
 
-`Presence` is a stateful service which has no UI. It uses a https://cloudstate.io/docs/core/current/user/features/crdts.html#crdts-available-in-cloudstate[Vote CRDT] 
+`Presence` is a stateful service which has no UI. It uses a https://cloudstate.io/docs/core/current/user/features/crdts.html#crdts-available-in-cloudstate[Vote CRDT]
 to track the state (online/offline status) of the user entity:
 
 * entity key = `User` defined by the user name
 * value = `OnlineStatus` which is a boolean value
 
-The diagram below shows the chat application is architected as 3 microservices, deployed in a Kubernetes cluster. 
+The diagram below shows the chat application is architected as 3 microservices, deployed in a Kubernetes cluster.
 
 For now, let's ignore the application flow which is explained in https://github.com/cloudstateio/samples-ui-chat[Cloudstate Chat Sample]. Also, we'll skip the coding tutorial which is very similar to that of the `Friends` service: <<../friends/README.adoc#javascript-implementation,JavaScript implementation of the Friends service>>. In this section, we focus only on the build and the testing of the `Presence` service:
 
@@ -46,11 +46,6 @@ The docker image tag will be `mydockerregistry/samples-js-chat-presence:latest`
 ----
 cd ./presence
 
-nvm install
-nvm use
-npm install
-npm run prestart
-
 DOCKER_PUBLISH_TO=mydockerregistry
 
 # build docker image
@@ -63,39 +58,31 @@ docker login
 docker push $DOCKER_PUBLISH_TO/samples-js-chat-presence:latest
 ----
 
-== Testing
+== Testing Presence service
 
 === Starting the service
 
-Testing the `Presence` service follows the same procedure as that of the `Friends` service. You may want to read the <<../friends/README.adoc#testing-friends-service,Testing Friends service>> section for a more detailed introduction. Here we proceed directly to starting the docker images:
+Testing the `Presence` service follows the same procedure as that of the `Friends` service. You may want to read the <<../friends/README.adoc#testing-friends-service,Testing Friends service>> section for a more detailed introduction.
+
+* Edit https://github.com/cloudstateio/samples-js-chat/blob/master/docker-compose.yaml[docker-compose.yaml] to replace the prebuilt image `cloudstateio/samples-js-chat-presence` by the docker image you have just published in the previous step.
+* Start the docker images of both the Cloudstate proxy and the `Presence` service
 
 [source,shell]
 ----
-# terminal 1: run the cloudstate proxy docker image
-# exposing the CS proxy port 9000 to the same 9000 on the host machine
-# NOTE: ignore the connection errors b/c the `user-function` is not yet started
-docker run -it --rm --name cloudstate-proxy -p 9000:9000 \
-  cloudstateio/cloudstate-proxy-dev-mode \
-  -Dcloudstate.proxy.user-function-port=8080 \
-  -Dcloudstate.proxy.user-function-interface=samples-js-chat-presence
+$ cd (where docker-compose.yaml is located)
 
-# terminal 2: run the docker image of the `user-function`
-# within the SAME network namespace as the CS proxy
-DOCKER_PUBLISH_TO=mydockerregistry
-
-docker run -it --rm --network container:cloudstate-proxy --name js-presence \
-  $DOCKER_PUBLISH_TO/samples-js-chat-presence
+$ docker-compose up
 ----
 
+=== Testing with gRPCurl
 
-=== Testing the gRPC service 
-
-We can use https://github.com/fullstorydev/grpcurl[gRPCurl] to test our service. Make sure you have installed gRPCurl as mentioned in the <<Javascrip dev environment setup>> section.
+We can use `gRPCurl` to test our service. Make sure you have installed `gRPCurl` as mentioned in the <<../README.adoc#tool-prerequisites,Tools Prerequisites>> section.
 
 Discover the services exposed at our gRPC server, implemented by the Cloudstate proxy:
+
 [source,shell]
 ----
-$ grpcurl -plaintext localhost:9000 list
+$ grpcurl -plaintext localhost:9002 list
 
 # console output
 cloudstate.samples.chat.presence.Presence
@@ -103,9 +90,10 @@ grpc.reflection.v1alpha.ServerReflection
 ----
 
 Then review the metadata of the `Presence` service
+
 [source,shell]
 ----
-$ grpcurl -plaintext localhost:9000 describe cloudstate.samples.chat.presence.Presence
+$ grpcurl -plaintext localhost:9002 describe cloudstate.samples.chat.presence.Presence
 
 # console output
 cloudstate.samples.chat.presence.Presence is a service:
@@ -115,24 +103,24 @@ service Presence {
 }
 ----
 
-Now let's test the `Connect` and `Monitor` methods. These methods requires input parameters which should be serialized as JSON string. The data schema is defined in https://github.com/cloudstateio/samples-js-chat/blob/master/presence/presence.proto[Presence service descriptor].
+Finally, let's test the `Connect` and `Monitor` methods. These methods require input parameters which should be serialized as JSON string. The data schema is defined in https://github.com/cloudstateio/samples-js-chat/blob/master/presence/presence.proto[Presence service descriptor].
 
 The `Connect` and `Monitor` methods return to the client a response as a stream. The client here is the terminal session running `grpcurl`. The client must be listening continuously to receive the response stream (ie. the terminal session looks like it is stuck in an infinite loop).
 
 [source,shell]
 ----
-# Open a terminal session and run (hit Ctrl-C to stop/restart)
+# Open a new terminal session and run (Ctrl-C to stop/restart)
 $ grpcurl -plaintext -d '{"name": "Albert"}' \
-  localhost:9000 \
+  localhost:9002 \
   cloudstate.samples.chat.presence.Presence/Monitor
 
 # console output: {} means user "Albert" is not yet connected
 {
 }
 
-# Open a terminal session and run (hit Ctrl-C to stop/restart)
+# Open a new terminal session and run (Ctrl-C to stop/restart)
 $ grpcurl -plaintext -d '{"name": "Albert"}' \
-  localhost:9000 \
+  localhost:9002 \
   cloudstate.samples.chat.presence.Presence/Connect
 
 # console output:
@@ -143,7 +131,8 @@ $ grpcurl -plaintext -d '{"name": "Albert"}' \
 }
 ----
 
-NOTE: You can also monitor the request/response activities of the gRPC server by checking the logs in the terminal sessions running the 2 docker images (the Cloudstate proxy and the `user-function` of the `Presence` service).
+NOTE: You can also monitor the request/response activities of the gRPC server by checking the logs in the terminal session running `docker-compose`
+
 
 == Deployment
 
