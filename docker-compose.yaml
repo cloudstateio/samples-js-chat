@@ -1,0 +1,64 @@
+version: "3.8"
+
+services:
+  #------------------------------------------------------------------------
+  # The "user-function" are Cloudstate-aware services
+  # which implement the business logic of the Chat application
+  #------------------------------------------------------------------------
+  friends-userfunc:
+    image: cloudstateio/samples-js-chat-friends:latest
+    networks:
+      - friends-network
+    environment:
+      # enable additional logs
+      DEBUG: cloudstate*
+    
+  presence-userfunc:
+    image: cloudstateio/samples-js-chat-presence:latest
+    networks:
+      - presence-network
+    environment:
+      # enable additional logs
+      DEBUG: cloudstate*
+
+  #------------------------------------------------------------------------
+  # Cloudstate proxy provides to the services implemented in "user-function"
+  # - state management
+  # - entrypoint for external access
+  # Each proxy is paired to a "user-function" and both should be within a same network namespace
+  #------------------------------------------------------------------------
+  cloudstate-proxy-friends:
+    image: cloudstateio/cloudstate-proxy-dev-mode:0.5.1
+    networks:
+      - friends-network
+    environment:
+      USER_FUNCTION_HOST: friends-userfunc
+      USER_FUNCTION_PORT: 8080
+    depends_on:
+      - friends-userfunc
+    ports:
+      # map the container (Cloudstate proxy) port 9000 to port 9001 on the host
+      - "9001:9000"
+  
+  cloudstate-proxy-presence:
+    image: cloudstateio/cloudstate-proxy-dev-mode:0.5.1
+    networks:
+      - presence-network
+    environment:
+      USER_FUNCTION_HOST: presence-userfunc
+      USER_FUNCTION_PORT: 8080
+    depends_on:
+      - presence-userfunc
+    ports:
+      # map the container (Cloudstate proxy) port 9000 to port 9002 on the host
+      - "9002:9000"
+
+
+#------------------------------------------------------------------------
+# The Cloudstate user-function must use the same network namespace'
+# as its Cloudstate proxy. Similar to a deployment on Kubernetes where
+# the user container and the CS-Proxy sidecar share the network namespace of the pod
+#------------------------------------------------------------------------
+networks:
+  friends-network:
+  presence-network:
