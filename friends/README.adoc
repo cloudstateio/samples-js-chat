@@ -145,10 +145,10 @@ entity.start();
 Build a docker image with the following name attributes:
 
 * Docker registry ID. Let's assume your DockerID on https://hub.docker.com/ is `mydockerregistry`
-* image name: `samples-js-chat-friends`
+* image name: `chat-friends-js`
 * version: `latest`
 
-The docker image tag will be `mydockerregistry/samples-js-chat-friends:latest`
+The docker image tag will be `mydockerregistry/chat-friends-js:latest`
 
 [source,shell]
 ----
@@ -157,13 +157,13 @@ cd ./friends
 DOCKER_PUBLISH_TO=mydockerregistry
 
 # build docker image
-docker build . -t $DOCKER_PUBLISH_TO/samples-js-chat-friends:latest
+docker build . -t $DOCKER_PUBLISH_TO/chat-friends-js:latest
 
 # authenticate with your Docker registry
 docker login
 
 # push the docker image to your registry
-docker push $DOCKER_PUBLISH_TO/samples-js-chat-friends:latest
+docker push $DOCKER_PUBLISH_TO/chat-friends-js:latest
 ----
 
 [[testing-friends-service]]
@@ -187,22 +187,22 @@ In the remaining of this guide, `Friends` is referred to by multiple qualificati
 Therefore, to test our `Friends` service we need both the Cloudstate proxy and our own `Friends` user-function to be running. To achieve that, we need two docker images:
 
 * The Cloudstate proxy, which exposes the entrypoint to test the `Friends` service. This image is already prebuilt for us by the Cloudstate project. We can get it at `cloudstateio/cloudstate-proxy-dev-mode:0.5.1`
-* The Cloudstate `user-function`, which is the Friends service we have already built above into the docker image `samples-js-chat-friends`
+* The Cloudstate `user-function`, which is the Friends service we have already built above into the docker image `chat-friends-js`
 
 
 === Customize docker-compose.yaml
 
-We use https://docs.docker.com/compose/#compose-documentation[docker-compose] to run these docker images together. Before starting, you must edit https://github.com/cloudstateio/samples-js-chat/blob/master/docker-compose.yaml[docker-compose.yaml] to replace the prebuilt `cloudstateio/samples-js-chat-friends:latest` by your own that you had published in the <<building-the-friends-service,Building the Friends service>> step.
+We use https://docs.docker.com/compose/#compose-documentation[docker-compose] to run these docker images together. Before starting, you must edit https://github.com/cloudstateio/samples-js-chat/blob/master/docker-compose.yaml[docker-compose.yaml] to replace the prebuilt `chat-friends-js:latest` by your own that you have published in the <<building-the-friends-service,Building the Friends service>> step.
 
 [source,shell]
 ----
 # REPLACE (in docker-compose.yaml)
   friends-impl:
-    image: cloudstateio/samples-js-chat-friends:latest
+    image: lightbend-docker-registry.bintray.io/cloudstate-samples/chat-friends-js:latest
 
 # BY your own docker image, for example:
   friends-impl:
-    image: mydockerregistry/samples-js-chat-friends:latest
+    image: mydockerregistry/chat-friends-js:latest
 ----
 
 
