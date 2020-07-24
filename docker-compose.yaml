@@ -24,7 +24,7 @@ services:
   # which implement the business logic of the Chat application
   #------------------------------------------------------------------------
   friends-userfunc:
-    image: cloudstateio/samples-js-chat-friends:latest
+    image: lightbend-docker-registry.bintray.io/cloudstate-samples/chat-friends-js:latest
     # use the same network stack than the container of the Cloudstate proxy
     # Similar to a deployment on Kubernetes where
     # the user container and its CS-Proxy sidecar are deployed in a same pod
@@ -33,7 +33,7 @@ services:
       DEBUG: cloudstate*  # enable additional logs
     
   presence-userfunc:
-    image: cloudstateio/samples-js-chat-presence:latest
+    image: lightbend-docker-registry.bintray.io/cloudstate-samples/chat-presence-js:latest
     network_mode: service:cloudstate-proxy-presence 
     environment:
       DEBUG: cloudstate*  # enable additional logs
