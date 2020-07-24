@@ -37,10 +37,10 @@ image::../docs/ChatAppDiagram_HighlightPresenceService.png[Chat Sample Diagram]
 Build a docker image with the following name attributes:
 
 * Docker registry ID. Let's assume your DockerID on https://hub.docker.com/ is `mydockerregistry`
-* image name: `samples-js-chat-presence`
+* image name: `chat-presence-js`
 * version: `latest`
 
-The docker image tag will be `mydockerregistry/samples-js-chat-presence:latest`
+The docker image tag will be `mydockerregistry/chat-presence-js:latest`
 
 [source,shell]
 ----
@@ -49,13 +49,13 @@ cd ./presence
 DOCKER_PUBLISH_TO=mydockerregistry
 
 # build docker image
-docker build . -t $DOCKER_PUBLISH_TO/samples-js-chat-presence:latest
+docker build . -t $DOCKER_PUBLISH_TO/chat-presence-js:latest
 
 # authenticate with your Docker registry
 docker login
 
 # push the docker image to your registry
-docker push $DOCKER_PUBLISH_TO/samples-js-chat-presence:latest
+docker push $DOCKER_PUBLISH_TO/chat-presence-js:latest
 ----
 
 == Testing Presence service
@@ -64,7 +64,7 @@ docker push $DOCKER_PUBLISH_TO/samples-js-chat-presence:latest
 
 Testing the `Presence` service follows the same procedure as that of the `Friends` service. You may want to read the <<../friends/README.adoc#testing-friends-service,Testing Friends service>> section for a more detailed introduction.
 
-* Edit https://github.com/cloudstateio/samples-js-chat/blob/master/docker-compose.yaml[docker-compose.yaml] to replace the prebuilt image `cloudstateio/samples-js-chat-presence` by the docker image you have just published in the previous step.
+* Edit https://github.com/cloudstateio/samples-js-chat/blob/master/docker-compose.yaml[docker-compose.yaml] to replace the prebuilt image `chat-presence-js` by the docker image you have just published in the previous step.
 * Start the docker images of both the Cloudstate proxy and the `Presence` service
 
 [source,shell]
