@@ -52,7 +52,7 @@ $ csctl auth login
 === Create a new project
 
 ----
-$ csctl projects new sample-shopping-cart "Shopping Cart Sample"
+$ csctl projects new sample-chat "Chat Sample"
 ----
 
 Wait until you receive an email approving your project!
@@ -67,16 +67,16 @@ You should see the project listed:
 
 ----
   NAME                   DESCRIPTION            STATUS   ID
-  sample-shopping-cart   Shopping Cart Sample   active   39ad1d96-466a-4d07-b826-b30509bda21b
+  sample-chat   Chat Sample   active   39ad1d96-466a-4d07-b826-b30509bda21b
 ----
 
 You can change the current project:
 
 ----
-$ csctl config set project sample-shopping-cart
+$ csctl config set project sample-chat
 ----
 
-=== Deploying the shopping cart service
+=== Deploying the chat service
 
 A pre-built container image of the `friends` service has been provided at `lightbend-docker-registry.bintray.io/cloudstate-samples/friends`.
 If you have built your own container image, change the image in the following command to point to the one that you just pushed.
@@ -111,7 +111,7 @@ Make a note of the hostname since it will be used by the `frontend` static html 
 
 === Visit the chat web frontend
 
-Open a browser and go to the following url: [https://static.cloudstate.com/js-shopping-cart/index.html](https://static.cloudstate.com/js-chat/index.html)
+Open a browser and go to the following url: [https://static.cloudstate.com/js-chat/index.html](https://static.cloudstate.com/js-chat/index.html)
 
 Once the page has loaded your will see a dialog prompting you to enter the hostname for your exposed (and CORS enabled) `friends` service.
 
