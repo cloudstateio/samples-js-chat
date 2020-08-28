@@ -32,7 +32,95 @@ The `Friends` and `Presence` services have no User Interface. In this repository
 
 A detailed tutorial is described in <<friends/README.adoc#javascript-implementation, JavaScript implementation of the Friends service>>. As the design of these services is quite similar, it is not necessary to repeat for the `Presence` service.
 
-== Deployment
+== Deployment - Managed Cloud Lightbend Cloudstate
+
+=== Deploying to Lightbend Cloudstate
+
+The following steps use `csctl` to deploy the application to [Lightbend Cloudstate](https://docs.lbcs.io/).
+
+=== Prerequisites
+
+* Get [Your Lightbend Cloudstate Account](https://docs.lbcs.io/gettingstarted/account.html)
+* Install [csctl](https://docs.lbcs.io/getting-started/set-up-development-env.html)
+
+=== Login to Lightbend Cloudstate
+
+----
+$ csctl auth login
+----
+
+=== Create a new project
+
+----
+$ csctl projects new sample-shopping-cart "Shopping Cart Sample"
+----
+
+Wait until you receive an email approving your project!
+
+List projects:
+
+----
+$ csctl projects list
+----
+
+You should see the project listed:
+
+----
+  NAME                   DESCRIPTION            STATUS   ID
+  sample-shopping-cart   Shopping Cart Sample   active   39ad1d96-466a-4d07-b826-b30509bda21b
+----
+
+You can change the current project:
+
+----
+$ csctl config set project sample-shopping-cart
+----
+
+=== Deploying the shopping cart service
+
+A pre-built container image of the `friends` service has been provided at `lightbend-docker-registry.bintray.io/cloudstate-samples/friends`.
+If you have built your own container image, change the image in the following command to point to the one that you just pushed.
+
+----
+$ csctl svc deploy \
+    friends \
+    lightbend-docker-registry.bintray.io/cloudstate-samples/friends
+----
+
+Wait for the friends service `STATUS` to be `ready`.
+
+----
+$ csctl svc get
+----
+
+=== Expose the friends service
+
+----
+$ csctl svc expose friends --enable-cors
+----
+
+The output will look like this:
+
+----
+Service 'friends' was successfully exposed at: small-fire-5330.us-east1.apps.lbcs.io
+----
+
+Make a note of the hostname since it will be used by the `frontend` static html page.
+
+*Repeate the above process replaceing `friends` with the word `presence` to deploy your presence service.*
+
+=== Visit the chat web frontend
+
+Open a browser and go to the following url: [https://static.cloudstate.com/js-shopping-cart/index.html](https://static.cloudstate.com/js-chat/index.html)
+
+Once the page has loaded your will see a dialog prompting you to enter the hostname for your exposed (and CORS enabled) `friends` service.
+
+In the example above, the hostname would be:
+----
+small-fire-5330.us-east1.apps.lbcs.io
+----
+
+== Deployment - Kubernetes Open Source Cloudstate
 
 It is at deployment time, when all the services collaborate together that we can really appreciate the true benefits of a serverless deployment model. In particular in terms of their stateful and serverless abilities. By using https://github.com/cloudstateio/cloudstate[Cloudstate] library and deploying on Kubernetes, your services store and retrieve state without requiring you to write any code nor manage any storage.
 
