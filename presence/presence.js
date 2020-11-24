@@ -47,6 +47,7 @@ function connect(user, ctx) {
     };
     ctx.state.connect();
   }
+  return {};
 }
 
 /**
