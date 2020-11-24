@@ -36,23 +36,23 @@ A detailed tutorial is described in <<friends/README.adoc#javascript-implementat
 
 === Deploying to Lightbend Cloudstate
 
-The following steps use `csctl` to deploy the application to [Lightbend Cloudstate](https://docs.lbcs.io/).
+The following steps use `akkasls` to deploy the application to [Lightbend Cloudstate](https://docs.lbcs.io/).
 
 === Prerequisites
 
 * Get [Your Lightbend Cloudstate Account](https://docs.lbcs.io/gettingstarted/account.html)
-* Install [csctl](https://docs.lbcs.io/getting-started/set-up-development-env.html)
+* Install [akkasls](https://docs.lbcs.io/getting-started/set-up-development-env.html)
 
 === Login to Lightbend Cloudstate
 
 ----
-$ csctl auth login
+$ akkasls auth login
 ----
 
 === Create a new project
 
 ----
-$ csctl projects new sample-chat "Chat Sample"
+$ akkasls projects new sample-chat "Chat Sample"
 ----
 
 Wait until you receive an email approving your project!
@@ -60,7 +60,7 @@ Wait until you receive an email approving your project!
 List projects:
 
 ----
-$ csctl projects list
+$ akkasls projects list
 ----
 
 You should see the project listed:
@@ -73,7 +73,7 @@ You should see the project listed:
 You can change the current project:
 
 ----
-$ csctl config set project sample-chat
+$ akkasls config set project sample-chat
 ----
 
 === Deploying the chat service
@@ -82,7 +82,7 @@ A pre-built container image of the `friends` service has been provided at `light
 If you have built your own container image, change the image in the following command to point to the one that you just pushed.
 
 ----
-$ csctl svc deploy \
+$ akkasls svc deploy \
     friends \
     lightbend-docker-registry.bintray.io/cloudstate-samples/friends
 ----
@@ -90,13 +90,13 @@ $ csctl svc deploy \
 Wait for the friends service `STATUS` to be `ready`.
 
 ----
-$ csctl svc get
+$ akkasls svc get
 ----
 
 === Expose the friends service
 
 ----
-$ csctl svc expose friends --enable-cors
+$ akkasls svc expose friends --enable-cors
 ----
 
 The output will look like this:
