@@ -15,9 +15,9 @@ endif::[]
 
 == Overview
 
-NOTE: This sample is a work-in-progress, and is not up-to-date with the latest changes in Cloudstate or Lightbend Cloudstate. Please see the https://github.com/cloudstateio/samples-ui-shoppingcart[Shopping Cart samples] for the most recent examples of a Cloudstate app instead.
+NOTE: This sample is a work-in-progress, and is not up-to-date with the latest changes in Cloudstate or [Akka Serverless](https://docs.cloudstate.com/). Please see the https://github.com/cloudstateio/samples-ui-shoppingcart[Shopping Cart samples] for the most recent examples of a Cloudstate app instead.
 
-This is the implementation of the `Friends` and `Presence` services, which are part of https://github.com/cloudstateio/samples-ui-chat[Lightbend Cloudstate Chat Sample]. The code is written in JavaScript and runs as a Node.js server. The screenshot below shows the user interface of the chat application:
+This is the implementation of the `Friends` and `Presence` services, which are part of https://github.com/cloudstateio/samples-ui-chat[Akka Serverless Chat Sample]. The code is written in JavaScript and runs as a Node.js server. The screenshot below shows the user interface of the chat application:
 
 image::docs/Cloudstate_Sample_ChatApplication.png[Cloudstate Sample - Chat Application]
 {nbsp} +
@@ -32,18 +32,18 @@ The `Friends` and `Presence` services have no User Interface. In this repository
 
 A detailed tutorial is described in <<friends/README.adoc#javascript-implementation, JavaScript implementation of the Friends service>>. As the design of these services is quite similar, it is not necessary to repeat for the `Presence` service.
 
-== Deployment - Managed Cloud Lightbend Cloudstate
+== Deployment - Akka Serverless
 
-=== Deploying to Lightbend Cloudstate
+=== Deploying to Akka Serverless
 
-The following steps use `akkasls` to deploy the application to [Lightbend Cloudstate](https://docs.cloudstate.com/).
+The following steps use `akkasls` to deploy the application to [Akka Serverless](https://docs.cloudstate.com/).
 
 === Prerequisites
 
-* Get [Your Lightbend Cloudstate Account](https://docs.cloudstate.com/getting-started/lightbend-account.html)
+* Get [Your Akka Serverless Account](https://docs.cloudstate.com/getting-started/lightbend-account.html)
 * Install [akkasls](https://docs.cloudstate.com/getting-started/set-up-development-env.html)
 
-=== Login to Lightbend Cloudstate
+=== Login to Akka Serverless
 
 ----
 $ akkasls auth login
@@ -107,7 +107,7 @@ Service 'friends' was successfully exposed at: small-fire-5330.us-east1.apps.lbc
 
 Make a note of the hostname since it will be used by the `frontend` static html page.
 
-*Repeate the above process replaceing `friends` with the word `presence` to deploy your presence service.*
+*Repeate the above process replacing `friends` with the word `presence` to deploy your presence service.*
 
 === Visit the chat web frontend
 
