@@ -36,12 +36,12 @@ A detailed tutorial is described in <<friends/README.adoc#javascript-implementat
 
 === Deploying to Lightbend Cloudstate
 
-The following steps use `akkasls` to deploy the application to [Lightbend Cloudstate](https://docs.lbcs.io/).
+The following steps use `akkasls` to deploy the application to [Lightbend Cloudstate](https://docs.cloudstate.com/).
 
 === Prerequisites
 
-* Get [Your Lightbend Cloudstate Account](https://docs.lbcs.io/gettingstarted/account.html)
-* Install [akkasls](https://docs.lbcs.io/getting-started/set-up-development-env.html)
+* Get [Your Lightbend Cloudstate Account](https://docs.cloudstate.com/getting-started/lightbend-account.html)
+* Install [akkasls](https://docs.cloudstate.com/getting-started/set-up-development-env.html)
 
 === Login to Lightbend Cloudstate
 
@@ -156,7 +156,7 @@ grpcurl 1.6.0
 
 === Optional for Local JavaScript Development
 
-`nvm` and `npm` tools are NOT needed to build the Docker images, deploy and test the `Friends` and `Presence` services. In case you want to play around with the JavaScript code you need to install: 
+`nvm` and `npm` tools are NOT needed to build the Docker images, deploy and test the `Friends` and `Presence` services. In case you want to play around with the JavaScript code you need to install:
 
 * Install https://github.com/nvm-sh/nvm#install--update-script[nvm] (node version manager)
 ** Check with `nvm --version`, version 0.34.0+ recommended
