@@ -17,7 +17,7 @@ endif::[]
 
 NOTE: This sample is a work-in-progress, and is not up-to-date with the latest changes in Cloudstate or [Akka Serverless](https://docs.cloudstate.com/). Please see the https://github.com/cloudstateio/samples-ui-shoppingcart[Shopping Cart samples] for the most recent examples of a Cloudstate app instead.
 
-This is the implementation of the `Friends` and `Presence` services, which are part of https://github.com/cloudstateio/samples-ui-chat[Akka Serverless Chat Sample]. The code is written in JavaScript and runs as a Node.js server. The screenshot below shows the user interface of the chat application:
+This is the implementation of the `Friends` and `Presence` services, which are part of https://github.com/cloudstateio/samples-ui-chat[Cloudstate Chat Sample]. The code is written in JavaScript and runs as a Node.js server. The screenshot below shows the user interface of the chat application:
 
 image::docs/Cloudstate_Sample_ChatApplication.png[Cloudstate Sample - Chat Application]
 {nbsp} +
